@@ -17,8 +17,8 @@ Automate Content Uploading to Campus Compare
   Grant Google Drive API permission - 
     https://developers.google.com/drive/api/v3/quickstart/python
   
-  Finally install pytube - $ pip install pytube
-  
+  Install pytube - $ pip install pytube
+  Install youtube-dl $pip install youtube-dl OR https://ytdl-org.github.io/youtube-dl/download.html
 # API Reference
 
  Google Sheets - https://developers.google.com/sheets/api/guides/concepts
