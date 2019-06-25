@@ -7,7 +7,8 @@ Automate Content Uploading to Campus Compare
 
 # Installation
 
-  Libraries needed to be installed: gspread, httplib2, oauthlib, apiclient, and pytube.
+  Libraries needed to be installed: 
+  pip install : gspread, httplib2, oauthlib, apiclient, and pytube
   
   Must install selenium - $ pip install selenium
   
