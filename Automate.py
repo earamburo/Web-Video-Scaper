@@ -24,6 +24,7 @@ from pathlib import Path
 import youtube_dl
 from youtube_dl import YoutubeDL
 
+import pyscreenshot as ImageGrab
 
 
 
@@ -86,7 +87,9 @@ def stripFormat(str):
     .replace("HYPE","").replace("hype","")\
     .replace(" - ","").replace("'","").replace("–","").replace("’","").replace("｜","")\
     .replace("Preview","").replace("preview","").replace("PREVIEW","")\
-    .replace("+","").replace("[","").replace("]","").replace("@","")
+    .replace("+","").replace("[","").replace("]","").replace("@","")\
+    .replace(")","").replace("(","").replace("seconds","").replace("SECONDS","")
+    
     return str.lstrip()
 
 
@@ -136,14 +139,15 @@ def getTitleFromYouTube(video_URLS, driver, sheet):
             except NoSuchElementException:
                 elem = "No Video Title Found"
                 title =  elem
-        if row_count is len(video_URLS):
-            break
         cell_reference = "D" + str(row_count)
         sheet.update_acell(cell_reference, title)  # update spreadsheet with video title
+        if row_count is len(video_URLS):
+            break
         time.sleep(5)
         row_count += 1
 
 def formatCategories(sheet):
+    print("Formatting categories\n")
     row_count=1
     categories = sheet.col_values(5)
     for category in categories:
@@ -233,11 +237,128 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
     #         print("IE: Done renaming") 
     #         pass
 
+
+# function to transcode url
+def transcodedThumb(driver, college_names, video_titles,video_URLS,sheet):
+
+
+    driver.get("https://www.campuscompare.com/")
+    login_component = driver.find_element_by_class_name('menu-item')
+    login_component.click()
+
+    # sign_in_link = driver.find_element_by_class_name('partner-signin')
+    # sign_in_link = driver.find_element_by_class_name('partner-signin')
+    sign_in_link = driver.find_element_by_css_selector('button.partner-signin')
+    driver.execute_script("arguments[0].click();", sign_in_link)
+
+    # sign_in_link.click()
+
+    email = driver.find_element_by_id('email')
+    password = driver.find_element_by_id("password")
+    # login = driver.find_element_by_tag_name("button")
+
+    # fills fields
+    email.send_keys("ajeffrey@studentbridge.com")
+    password.send_keys("12345")
+
+    # hits sign in button
+    sign_in_button = driver.find_element_by_css_selector('button.signup-btn')
+    driver.execute_script("arguments[0].click();", sign_in_button)
+    time.sleep(5)
+
+    # find search bar and makes it active
+    search_icon = driver.find_element_by_class_name('nav-search-icon')
+    driver.execute_script("arguments[0].click();", search_icon)
+
+    search_bar = driver.find_element_by_id('search-text')
+    search_bar.click()
+
+    for college in college_names:
+        search_bar.send_keys(college)
+        time.sleep(5)
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# //////////////////////////////////Transcoder website///////////////////////////////////////////
+    # wait = WebDriverWait(driver, 200)
+    # downloaded_Videos = os.listdir("/Users/admin/Desktop/Videos")
+
+    # # log in to transcoder
+    # driver.get("https://transcoder.studentbridge.com/admin/")
+    # email = driver.find_element_by_id("email")
+    # password = driver.find_element_by_id("password")
+    # login = driver.find_element_by_tag_name("button")
+
+    # email.send_keys("earamburo@studentbridge.com")
+    # password.send_keys("admin123")
+    # login.click()
+   
+    # #Search tab
+    # time.sleep(3) 
+    # driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs") 
+    
+    # row_count = 1
+    # count = 0
+
+    # for vid in video_URLS:
+       
+    #     # print(college_names)
+    #     search = driver.find_element_by_name('search')
+    #     search.click()
+
+    #     # searching the correct url
+    #     # print(vid)
+    #     search.send_keys(str(vid))
+    #     search.send_keys(Keys.RETURN)
+
+    #     # clicks url
+    #     url =  url = driver.find_element_by_partial_link_text('http')
+    #     print(url.text)
+    #     url.click()
+
+
+    #     # takes screenshot
+    #     # driver.save_screenshot("/Users/admin/Desktop/test/testing.png")
+
+
+    #     # print("SCREENSHOT SAVED")
+
+
+        
+    #     #goes back
+    #     driver.back()
+
+    #     # clears search bar
+    #     search = driver.find_element_by_name('search')
+    #     search.click() 
+    #     search.clear()
+    #     time.sleep(5)
+
+
+
 def downloadVideos(videos_URLS, college_names,sheet):
     print("Downloading Videos\n")
     count = 0
     row_count= 0
-    name_counter = 3
+    cell_count = 1
+    name_counter = 840
+    state = 'LC'
 
     # os.mkdir('/Users/admin/Downloads/Videos')
     # print("test1")
@@ -255,20 +376,22 @@ def downloadVideos(videos_URLS, college_names,sheet):
                 if filename ==".DS_Store":
                     print("SKIPPED")
                 else:
-                    print("ELSE")
+                    # print("ELSE")
                     src = '/Users/admin/Downloads/Videos/' + (filename)
                     print("SOURCE: "+ src)
                     ########REMEMBER TO CHANGE STATE NAME########
-                    dst = '/Users/admin/Desktop/Videos/DE__'+ str(name_counter) +"___" + college_names[row_count] +"___" + (filename)
+                    dst = '/Users/admin/Desktop/Videos/'+ state + str(name_counter) +"___" + college_names[row_count] +"___" + (filename)
                     # print(college_names[row_count]+"\n")
                     print('DESTINATION: '+ dst+"\n")
                     os.rename(src,dst)
-
+                    # cell_reference = "K" + str(cell_count)
+                    # sheet.update_acell(cell_reference, stripFormat(filename))
+                    cell_count+=1
                     print("RENAMED\n")
-                    row_count=+1
+                    row_count+=1
                     time.sleep(3)
             name_counter+=1     
-            print(name_counter)           
+            # print(name_counter)           
                 # time.sleep(5)
             # os.rename(src,dst)    
             # print("Renamed\n")
@@ -283,7 +406,7 @@ def downloadVideos(videos_URLS, college_names,sheet):
             # video_name = ydl.streams.first().download('/Users/admin/Downloads/Videos')
             # print(ydl_opts)
 
-    # for url in videos_URLS:
+    # for url in videos_URLS:  
     #     print(url)
     #     YoutubeDL.download(url)
         # yt = YouTube(url)
@@ -349,7 +472,7 @@ def transcodeVideos(driver, video_titles):
     # uploads videos to transcoder
     for filename in downloaded_Videos:
         if filename ==".DS_Store":
-                    print("SKIPPED")
+            print("SKIPPED")
         else:
             print(filename)
             time.sleep(3)
@@ -373,6 +496,7 @@ def transcodeVideos(driver, video_titles):
             attempts = 0
             max_attempts = 5
             while(1 == 1):
+                time.sleep(3)
                 try:
                     el = driver.find_element(By.XPATH, '//*[@id="s2id_encoder_profile"]')
                     el.click()
@@ -411,46 +535,53 @@ def transferURLS(video_titles, college_names, driver, sheet):
     
     row_count = 1
     count = 0
-    name_counter= 0
-    for title in video_titles:
-        try:
-            # print(college_names)
-            search = driver.find_element_by_name('search')
-            search.click()
-            title = stripFormat(title)
-            # print(college_names[count]+" "+title)
-            college_name = college_names[count]
-            college_name = stripFormat(college_name)
-            # print(college_name)
-            print(college_name + " " +title)
-            search.send_keys("DE " + str(name_counter) + " " + college_name + " " +title)
-            # search.send_keys(title)
-            # search.send_keys(college_names[count] +"_" + title)
-            search.send_keys(Keys.RETURN)
-            # print(title)
-            time.sleep(3)
-            url = driver.find_element_by_partial_link_text('http').text
-            # url.click()
-            
-            # print(url)
+    name_counter= 840
+    state = 'LC'
 
-            cell_reference = "H" + str(row_count)
-            sheet.update_acell(cell_reference, url)
-            row_count += 1
-            count+=1
-            # print('Updated needs to clear')
-            search = driver.find_element_by_name('search')
-            search.click() 
-            search.clear()
-            name_counter+=1
+    for title in video_titles:
+       
+        # print(college_names)
+        search = driver.find_element_by_name('search')
+        search.click()
+        title = stripFormat(title)
+        # print(college_names[count]+" "+title)
+        college_name = college_names[count]
+        college_name = stripFormat(college_name)
+        # print(college_name)
+        print(college_name + " " +title)
+        # search.send_keys("RI" + str(name_counter) + " " + college_name + " " +title)
+        search.send_keys(str(state) + str(name_counter) +" " + college_name)
+        # search.send_keys(title)
+        # search.send_keys(college_names[count] +"_" + title)
+        search.send_keys(Keys.RETURN)
+        # print(title)
+        time.sleep(3)
+        url = driver.find_element_by_partial_link_text('http').text
+        # url.click()
+        
+        # print(url)
+
+        cell_reference = "L" + str(row_count)
+        sheet.update_acell(cell_reference, url)
+        row_count += 1
+        count+=1
+        name_counter+=1
+        print(name_counter)
+
+        # print('Updated needs to clear')
+        search = driver.find_element_by_name('search')
+        search.click() 
+        search.clear()
+        
             # print('Complete')
-        except NoSuchElementException:
-            search = driver.find_element_by_name('search')
-            search.click() 
-            search.clear()
-            row_count += 1
-            count+=1
-            pass    
+        # except NoSuchElementException:
+        #     search = driver.find_element_by_name('search')
+        #     search.click() 
+        #     search.clear()
+        #     row_count += 1
+        #     count+=1
+        #     name_counter+=1
+        #     pass    
 
 
 
@@ -503,6 +634,9 @@ def automate(sheetname):
     #4 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
     # getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet)
 
+    #5 fixes corrupted thumbnails
+    # transcodedThumb(driver, college_names, video_titles,video_URLS,sheet)
+
     # time.sleep(10)
 
     #5 -> downloads all videos and saves them in "College Name___ Video Title"
@@ -512,13 +646,12 @@ def automate(sheetname):
     # transcodeVideos(driver, video_titles)
 
     #7 -> transfer transcoded urls to spreadsheet
-    # transferURLS(video_titles,college_names,driver,sheet);
+    transferURLS(video_titles,college_names,driver,sheet);
 
     #8 -> deletes videos in downloaded video folders
     #deleteVideos()
 
-
-automate("Rhode Island QA")
+automate("Specific imports")
 
 
 
