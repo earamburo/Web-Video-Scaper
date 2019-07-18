@@ -25,6 +25,7 @@ import youtube_dl
 from youtube_dl import YoutubeDL
 
 import pyscreenshot as ImageGrab
+import os
 
 
 
@@ -183,23 +184,55 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
         download = driver.find_element_by_xpath("//*[@id='im']/div[4]/div[2]/form/input")
         download.click()   # downloads url
         time.sleep(5)
-        # print("Downloaded thumbnail\n")
-
-        # This will rename the downloaded thumbnail
+        
         for filename in os.listdir("/Users/admin/Downloads/"):
-            if filename ==".DS_Store":
+
+            if filename ==".DS_Store": # Handles the first hidden file in the folder
                 pass
-            src = '/Users/admin/Downloads/' + (filename)
-            # dst = '/Users/admin/Desktop/Thumbnails/'+ college_names[count] +"___"+ video_titles[count]+".jpg"
-            dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
-            # print("Renaming thumbnail") 
-            os.rename(src, dst)
-            if filename ==".DS_Store":
-                pass
+
+            # uses the os.stat functions for file sizing 
+            file = os.stat("/Users/admin/Downloads/" + filename)
+            
+            if(file.st_size) == 0:
+                os.unlink("/Users/admin/Downloads/" + filename) #deletes files
+                print('THUMBNAIL ERROR') #notifies me of error
+
+                ###### Updates the spreadsheet with the error ########
+                # cell_reference = "I" + str(row_count)
+                # sheet.update_acell(cell_reference, 'THUMBNAIL ERROR')
+                ########################################################
+
+                download = driver.find_element_by_xpath("//*[@id='im']/div[1]/div[2]/form/input")
+                download.click()   # downloads url 
+                time.sleep(5)
+                for filename in os.listdir("/Users/admin/Downloads/"):
+
+                    if filename ==".DS_Store":
+                        pass     
+                   
+                    src = '/Users/admin/Downloads/' + (filename)       
+                    dst = '/Users/admin/Desktop/Thumbnails/' + (filename)  
+                    # print("Renaming thumbnail")            
+                    os.rename(src, dst)
+
+
+            else:
+                if filename ==".DS_Store":
+                    pass
+
+                src = '/Users/admin/Downloads/' + (filename)
+                dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
+                # print("Renaming thumbnail") 
+
+                # This will rename the downloaded thumbnail
+                os.rename(src, dst)
+                
+            
+
             time.sleep(5)
             cell_reference = "I" + str(row_count)
             sheet.update_acell(cell_reference, filename)
-            print("FILENAME: "+filename)
+            print("RENAMED: "+filename)
             # print("DESTINATION: " +dst)
             # src = '/Users/admin/Downloads/' + (filename)
             # dst = '/Users/admin/Desktop/Thumbnails/' +college_names[row_count]+video_titles[row_count]+".jpg"
@@ -208,156 +241,12 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
             row_count += 1
 
 
-        # dirPath = Path(r'/Users/admin/Downloads/')
-        # os.chdir(dirPath)
-        # entries = ((os.stat(files), files) for files in os.listdir(dirPath))
-        # entries = ((stat[ST_CTIME], files) for stat, files in entries)
-        # for cdate, files in sorted(entries):
-        #     src = dirPath / files
-        #     name = video_titles[count]+ "___" + college_names[count]  + ".jpg"
-        #     dst = dirPath / ('/Users/admin/Desktop/Thumbnails/' + name)
-        #     os.rename(src, dst)
-        #     time.sleep(5)
-        #     count += 1
-        #     # this will transfer the new thumbnail name to the spreadsheet
-        #     print("transferring thumbnail " + name)
-        #     cell_reference = "I" + str(row_count)
-        #     sheet.update_acell(cell_reference, name)
-        #     row_count += 1
-        # print(dst)    
-    #         print("Done")
-    #     except UnexpectedAlertPresentException:
-    #         print("Hello")
-    #         alert.accept()
-    #         pass
-    # # We need to handle the url invalid alert
-    #     except NoAlertPresentException as e: 
-    #         print("no alert")        
-    #     except:
-    #         print("IE: Done renaming") 
-    #         pass
-
-
-# function to transcode url
-def transcodedThumb(driver, college_names, video_titles,video_URLS,sheet):
-
-
-    driver.get("https://www.campuscompare.com/")
-    login_component = driver.find_element_by_class_name('menu-item')
-    login_component.click()
-
-    # sign_in_link = driver.find_element_by_class_name('partner-signin')
-    # sign_in_link = driver.find_element_by_class_name('partner-signin')
-    sign_in_link = driver.find_element_by_css_selector('button.partner-signin')
-    driver.execute_script("arguments[0].click();", sign_in_link)
-
-    # sign_in_link.click()
-
-    email = driver.find_element_by_id('email')
-    password = driver.find_element_by_id("password")
-    # login = driver.find_element_by_tag_name("button")
-
-    # fills fields
-    email.send_keys("ajeffrey@studentbridge.com")
-    password.send_keys("12345")
-
-    # hits sign in button
-    sign_in_button = driver.find_element_by_css_selector('button.signup-btn')
-    driver.execute_script("arguments[0].click();", sign_in_button)
-    time.sleep(5)
-
-    # find search bar and makes it active
-    search_icon = driver.find_element_by_class_name('nav-search-icon')
-    driver.execute_script("arguments[0].click();", search_icon)
-
-    search_bar = driver.find_element_by_id('search-text')
-    search_bar.click()
-
-    for college in college_names:
-        search_bar.send_keys(college)
-        time.sleep(5)
-    
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# //////////////////////////////////Transcoder website///////////////////////////////////////////
-    # wait = WebDriverWait(driver, 200)
-    # downloaded_Videos = os.listdir("/Users/admin/Desktop/Videos")
-
-    # # log in to transcoder
-    # driver.get("https://transcoder.studentbridge.com/admin/")
-    # email = driver.find_element_by_id("email")
-    # password = driver.find_element_by_id("password")
-    # login = driver.find_element_by_tag_name("button")
-
-    # email.send_keys("earamburo@studentbridge.com")
-    # password.send_keys("admin123")
-    # login.click()
-   
-    # #Search tab
-    # time.sleep(3) 
-    # driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs") 
-    
-    # row_count = 1
-    # count = 0
-
-    # for vid in video_URLS:
-       
-    #     # print(college_names)
-    #     search = driver.find_element_by_name('search')
-    #     search.click()
-
-    #     # searching the correct url
-    #     # print(vid)
-    #     search.send_keys(str(vid))
-    #     search.send_keys(Keys.RETURN)
-
-    #     # clicks url
-    #     url =  url = driver.find_element_by_partial_link_text('http')
-    #     print(url.text)
-    #     url.click()
-
-
-    #     # takes screenshot
-    #     # driver.save_screenshot("/Users/admin/Desktop/test/testing.png")
-
-
-    #     # print("SCREENSHOT SAVED")
-
-
-        
-    #     #goes back
-    #     driver.back()
-
-    #     # clears search bar
-    #     search = driver.find_element_by_name('search')
-    #     search.click() 
-    #     search.clear()
-    #     time.sleep(5)
-
-
-
 def downloadVideos(videos_URLS, college_names,sheet):
     print("Downloading Videos\n")
     count = 0
     row_count= 0
     cell_count = 1
-    name_counter = 840
+    name_counter = 1250
     state = 'LC'
 
     # os.mkdir('/Users/admin/Downloads/Videos')
@@ -535,7 +424,7 @@ def transferURLS(video_titles, college_names, driver, sheet):
     
     row_count = 1
     count = 0
-    name_counter= 840
+    name_counter = 1250
     state = 'LC'
 
     for title in video_titles:
@@ -634,9 +523,6 @@ def automate(sheetname):
     #4 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
     # getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet)
 
-    #5 fixes corrupted thumbnails
-    # transcodedThumb(driver, college_names, video_titles,video_URLS,sheet)
-
     # time.sleep(10)
 
     #5 -> downloads all videos and saves them in "College Name___ Video Title"
@@ -651,7 +537,7 @@ def automate(sheetname):
     #8 -> deletes videos in downloaded video folders
     #deleteVideos()
 
-automate("Specific imports")
+automate("LC Import Test")
 
 
 
