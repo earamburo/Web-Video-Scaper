@@ -1,13 +1,14 @@
 # Web-Video-Scaper
-Automate Content Uploading to Campus Compare
+Automate Content Uploading
 
 # What it does?
 
-  Fills all the Import_Format columns 
+  Downloads, takes Thumbnails, and Scrapes data from videos
 
 # Installation
 
-  Libraries needed to be installed: gspread, httplib2, oauthlib, apiclient, and pytube.
+  Libraries needed to be installed: 
+  pip install : gspread, httplib2, oauthlib, apiclient, and pytube
   
   Must install selenium - $ pip install selenium
   
@@ -16,9 +17,11 @@ Automate Content Uploading to Campus Compare
   
   Grant Google Drive API permission - 
     https://developers.google.com/drive/api/v3/quickstart/python
+    https://www.youtube.com/watch?v=cnPlKLEGR7E&t=294s
   
-  Finally install pytube - $ pip install pytube
+  Install pytube - $ pip install pytube
   
+  Install youtube-dl $pip install youtube-dl OR https://ytdl-org.github.io/youtube-dl/download.html
 # API Reference
 
  Google Sheets - https://developers.google.com/sheets/api/guides/concepts

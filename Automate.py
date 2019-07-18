@@ -24,9 +24,9 @@ from pathlib import Path
 import youtube_dl
 from youtube_dl import YoutubeDL
 
+
 import pyscreenshot as ImageGrab
 import os
-
 
 
 # chromedriver location
@@ -90,7 +90,7 @@ def stripFormat(str):
     .replace("Preview","").replace("preview","").replace("PREVIEW","")\
     .replace("+","").replace("[","").replace("]","").replace("@","")\
     .replace(")","").replace("(","").replace("seconds","").replace("SECONDS","")
-    
+
     return str.lstrip()
 
 
@@ -120,7 +120,7 @@ def getIpeds(sheet, college_names):
 def getTitleFromYouTube(video_URLS, driver, sheet):
      print("Getting titles")
      row_count = 1
-     for x in video_URLS:    
+     for x in video_URLS:
         driver.get(x)  # goes to video url
 
         time.sleep(5)
@@ -136,7 +136,7 @@ def getTitleFromYouTube(video_URLS, driver, sheet):
                 time.sleep(5)
                 elem = driver.find_element_by_tag_name("h1")
                 title = elem.text
-               
+
             except NoSuchElementException:
                 elem = "No Video Title Found"
                 title =  elem
@@ -166,7 +166,9 @@ def formatCategories(sheet):
             sheet.update_acell("J"+str(row_count),'SPELLCHECK')
             row_count+=1
             print("No Match")
+
     print("FINISHED AUDITING CATEGORIES")        
+
 
 
 
@@ -241,12 +243,38 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
             row_count += 1
 
 
+        # print("Downloaded thumbnail\n")
+
+        # This will rename the downloaded thumbnail
+        for filename in os.listdir("/Users/admin/Downloads/"):
+            if filename ==".DS_Store":
+                pass
+            src = '/Users/admin/Downloads/' + (filename)
+            # dst = '/Users/admin/Desktop/Thumbnails/'+ college_names[count] +"___"+ video_titles[count]+".jpg"
+            dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
+            # print("Renaming thumbnail")
+            os.rename(src, dst)
+            if filename ==".DS_Store":
+                pass
+            time.sleep(5)
+            cell_reference = "I" + str(row_count)
+            sheet.update_acell(cell_reference, filename)
+            print("FILENAME: "+filename)
+            # print("DESTINATION: " +dst)
+            # src = '/Users/admin/Downloads/' + (filename)
+            # dst = '/Users/admin/Desktop/Thumbnails/' +college_names[row_count]+video_titles[row_count]+".jpg"
+            # os.rename(src, dst)
+            time.sleep(5)
+            row_count += 1
+
 def downloadVideos(videos_URLS, college_names,sheet):
     print("Downloading Videos\n")
     count = 0
     row_count= 0
     cell_count = 1
+
     name_counter = 1250
+
     state = 'LC'
 
     # os.mkdir('/Users/admin/Downloads/Videos')
@@ -280,55 +308,8 @@ def downloadVideos(videos_URLS, college_names,sheet):
                     row_count+=1
                     time.sleep(3)
             name_counter+=1     
-            # print(name_counter)           
-                # time.sleep(5)
-            # os.rename(src,dst)    
-            # print("Renamed\n")
-            # count=+1
-            # row_count=+1
+       
 
-
-            # ydl.extract_info([url])
-           
-
-    # print('Title of the extracted video/playlist: %s' % info['title'])
-            # video_name = ydl.streams.first().download('/Users/admin/Downloads/Videos')
-            # print(ydl_opts)
-
-    # for url in videos_URLS:  
-    #     print(url)
-    #     YoutubeDL.download(url)
-        # yt = YouTube(url)
-        # print(yt)
-        # video_name = yt.streams.first().download('/Users/admin/Downloads/Videos')
-        # new_name = yt.title +" "+ str(count)
-        # print("download test")
-        # print(yt.streams.first().default_filename)
-        # new_name = "Hello" + "rename" + str(count) + ".mp4"
-        # print(new_name)
-        # os.rename(video_name, '/Users/admin/Downloads/Videos/' + college_names[count] +"___" + file_name[count] + ".mp4")
-        # os.rename(video_name, college_names[count] +"___" + file_name[count]+ count + ".mp4")
-        # print("renamed")
-        # count +=1
-        # time.sleep(3)
-        # cell_reference = "D" + str(row_count)
-        # sheet.update_acell(cell_reference, video_name)
-        # row_count += 1
-        
-         
-        # except: KeyError:
-        #     print('KeyError')
-        #     pass
-        # except: HTTPError:
-        #     print('HTTPError')
-        #     pass
-        # except: RemoteDisconnected:
-        #     print('RemoteError')
-        #     pass
-        # except: VideoUnavailable:
-        #     print('VideoDNEError')
-        #     pass
-            
 
 
 # function to transcode url
@@ -419,9 +400,9 @@ def transferURLS(video_titles, college_names, driver, sheet):
     login.click()
 
 
-    time.sleep(3) 
-    driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs") 
-    
+    time.sleep(3)
+    driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs")
+
     row_count = 1
     count = 0
     name_counter = 1250
@@ -475,6 +456,7 @@ def transferURLS(video_titles, college_names, driver, sheet):
 
 
 
+
 def deleteVideos():
     folder = Path("/Users/admin/Downloads/Videos")
     for the_file in os.listdir(folder):
@@ -509,12 +491,12 @@ def automate(sheetname):
 
 
 
-#############FUNCTIONS#####################
-    
+#############FUNCTIONS###################
+
     #1 -> Uses spread sheet to acquire all iped ids
     # getIpeds(sheet, college_names)
 
-    # 2 -> This has a limitation on calls, used for errors that happen in the pytube api 
+    # 2 -> This has a limitation on calls, used for errors that happen in the pytube api
     # getTitleFromYouTube(video_URLS, driver, sheet)
 
     #3 -> format categories
@@ -523,11 +505,21 @@ def automate(sheetname):
     #4 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
     # getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet)
 
+
+    #4 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
+    # getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet)
+
+
     # time.sleep(10)
 
     #5 -> downloads all videos and saves them in "College Name___ Video Title"
     # downloadVideos(video_URLS,college_names,sheet)
     
+
+    #5 -> downloads all videos and saves them in "College Name___ Video Title"
+    # downloadVideos(video_URLS,college_names,sheet)
+
+
     #6 -> transcodes every video
     # transcodeVideos(driver, video_titles)
 
@@ -537,113 +529,10 @@ def automate(sheetname):
     #8 -> deletes videos in downloaded video folders
     #deleteVideos()
 
+
 automate("LC Import Test")
 
 
 
-###########UNUSED FUNCTIONS###########
-# title function that loops through URLS
-# def getTitle(video_URLS, driver, sheet):
-#     row_count = 1
 
-#     # gets title for every video in sheet
-#     for x in video_URLS:
-#         getTitleFromYouTube(x, driver, row_count, sheet)
-#         row_count += 1
-
-# title function that loops through URLS
-# def getPytubeTitle(video_URLS, driver, sheet):
-#     row_count = 1
-#     print("Getting Titles...\n")
-
-#     # gets title for every video in sheet
-#     for x in video_URLS:
-#         try:
-#             yt = YouTube(x).title
-#             print(yt)
-#             # title = yt.title
-#             time.sleep(3)
-#             title = stripFormat(yt)
-#             print(title + " transferring")
-        
-#         except RegexMatchError:
-#             title = "Error"
-#             pass    
-#         except KeyError:
-#             title = "Error"
-#             pass
-#         cell_reference = "D" + str(row_count)
-#         sheet.update_acell(cell_reference, title)
-#         row_count += 1
-
-
-                    
-
-
- 
-
-
-# def transferThumb():
-    # open('/Users/admin/Desktop/Thumbnails/')
-    # row_count = 1
-    # print("Transferring Thumbnails...\n")
-    # all_thumbnails = 
-
-    # gets title for every video in sheet
-    # cell_reference = "I" + str(row_count)
-    # sheet.update_acell(cell_reference, title)
-
-# Function to download youtube videos
-
-
-
-    # gets titles for videos
-    # getPytubeTitle(video_URLS, driver, sheet)
-
-# def findErrors():
-#     print("Finding Errors...")
-#     # create an array that will hold the image errors
-#     errors = []
-
-#     # opens the current spreadsheet
-#     driver.get("https://docs.google.com/spreadsheets/d/1A7jG029FraN8CpnV8g5F6C90AU99_ZL2XAHmLw_zEa0/edit#gid=0") 
-#     # open file 
-#     f = open("/Users/admin/Desktop/errors.txt","r")
-    
-#     for line in f:
-#         search_error = line;
-
-#         errors.append(line)
-#     print(errors)        
-
-
-# function to download thumbnails
-# def downloadThumb(video_URLS,file_name, college_names, driver):
-#     print("Downloading Thumbnails\n")
-#     count = 0
-#     for x in video_URLS:
-#         driver.get("https://youtubethumbnailimage.com/") # goes to  website for downloading thumbnails
-#         search = driver.find_element_by_class_name("urlinput")
-#         search.send_keys(x)     # inputs video url
-#         search.send_keys(Keys.RETURN)
-#         download = driver.find_element_by_xpath("//*[@id='im']/div[4]/div[2]/form/input")
-#         download.click()   # downloads url
-#         time.sleep(3)
-
-# def renameThumbs(file_name, video_titles,college_names):
-#     try:
-#         print("Renaming Thumbnails\n")
-#         dirPath = Path(r'/Users/admin/Downloads/')
-#         os.chdir(dirPath)
-#         entries = ((os.stat(files), files) for files in os.listdir(dirPath))
-#         entries = ((stat[ST_CTIME], files) for stat, files in entries)
-#         for cdate, files in sorted(entries):
-#             src = dirPath / files
-#             dst = dirPath / ('/Users/admin/Desktop/Thumbnails/' + video_titles[count]+ "___" + college_names[count]  + ".jpg")
-#             os.rename(src, dst)
-#             count += 1
-#         print("Done renaming")    
-#     except :
-#             print("IE: Done renaming") 
-#             pass   
 
