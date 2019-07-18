@@ -1,9 +1,9 @@
 # Web-Video-Scaper
-Automate Content Uploading to Campus Compare
+Automate Content Uploading
 
 # What it does?
 
-  Fills all the Import_Format columns 
+  Downloads, takes Thumbnails, and Scrapes data from videos
 
 # Installation
 
