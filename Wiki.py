@@ -47,9 +47,9 @@ def getCollegeNames(sheet):
     return CollegeArr
 
 
-# Creates array of Video URLs
-def getVideoURLS(sheet):
-    URLArr = sheet.col_values(6)
+# Creates array of College Descriptions
+def getVideoDescriptions(sheet):
+    URLArr = sheet.col_values(3)
     return URLArr
 
 
@@ -59,43 +59,22 @@ def getVideoTitles(sheet):
     return TitleArr
 
 
-def getFileName(sheet):
-    titles = sheet.col_values(4)
-    fileArr = []
-    count = 0
-    for title in titles:
-        fileArr.append(stripFormat(title))
-        count += 1
-    return fileArr
-
+# function to remove all college name formatting
+# def stripFormat(str):
+#     # print("Strip Format\n")
+#     str = str.replace("[", "").replace("]","").replace("1","").replace("1 ","").replace("2","").replace("2 ","").replace("3","").replace("3 ","").replace("4","").replace("4 ","")\
+#     .replace("5","").replace("5 ","").replace("6","").replace("6 ","").replace("7","").replace("7 ","").replace("8","").replace("8 ","")\
+#     .replace("9","").replace("9 ","").replace("0","").replace("0 ","")\
+#     return str
 
 # function to remove all college name formatting
 def stripFormat(str):
     # print("Strip Format\n")
-    str = str.replace(";", "").replace(":", "").replace("-", " ").replace("|", " ").replace(" | ", "").replace("| ","").replace("'","").replace(",", " ")\
-    .replace("?", " ").replace("/", " ").replace("\"", " ").replace("(","").replace(")","").replace("@"," ")\
-    .replace("&"," ").replace(".","").replace("!","").replace("#","").replace("  ","")\
-    .replace("1","").replace("1 ","").replace("2","").replace("2 ","").replace("3","").replace("3 ","").replace("4","").replace("4 ","")\
+    str = str.replace("[", "").replace("]","").replace("1","").replace("1 ","").replace("2","").replace("2 ","").replace("3","").replace("3 ","").replace("4","").replace("4 ","")\
     .replace("5","").replace("5 ","").replace("6","").replace("6 ","").replace("7","").replace("7 ","").replace("8","").replace("8 ","")\
-    .replace("9","").replace("9 ","").replace("0","").replace("0 ","")\
-    .replace("Video","").replace("video","")\
-    .replace("Promo","").replace("promo","")\
-    .replace("Intro","").replace("intro ","")\
-    .replace("trailer","").replace("Trailer","")\
-    .replace("Fall","").replace("fall","").replace("Fall%","").replace("fall ","")\
-    .replace("Commercial","").replace("commercial","").replace("`","").replace("~","").replace("Hype","")\
-    .replace("HYPE","").replace("hype","")\
-    .replace(" - ","").replace("'","").replace("–","").replace("’","").replace("｜","")\
-    .replace("Preview","").replace("preview","").replace("PREVIEW","")\
-    .replace("+","").replace("[","").replace("]","").replace("@","")\
-    .replace(")","").replace("(","").replace("seconds","").replace("SECONDS","")
-    return str.lstrip()
+    .replace("9","").replace("9 ","").replace("0","").replace("0 ","")
+    return str.strip()
 
-# function to remove all college name formatting
-def formatSchool(str):
-    # print("Strip Format\n")
-    str = str.replace(" ", "_").replace("-","#")
-    return str
 
 # Function to first paragraph on Wikipedia
 def getDescription(sheet, college_names):
@@ -103,7 +82,7 @@ def getDescription(sheet, college_names):
     row_count = 1
     # goes through every school in the array
     for college in college_names:
-        college = formatSchool(college)
+        college = stripFormat(college)
         print(college+"\n")
         driver.get("https://en.wikipedia.org/wiki/"+ college)
         time.sleep(3)
@@ -134,10 +113,24 @@ def getDescription(sheet, college_names):
         except NoSuchElementException:
             # Handles the campus error
             cell_reference = "C" + str(row_count)
-            sheet.update_acell(cell_reference, "ERROR")
+            sheet.update_acell(cell_reference, "CAMPUS ERROR")
             row_count+=1
 
-
+def formatDescription(sheet, descriptions):
+    print("Formatting description\n")
+    row_count=1
+    # descriptions = sheet.col_values(3)
+    for d in descriptions:
+        d = stripFormat(d)
+        print(d)
+        # print("Checking categories")
+        cell_reference = "C" + str(row_count)
+        # print(cell_reference)
+        sheet.update_acell(cell_reference,d)
+        # time.sleep(3)
+        row_count+=1
+        # print("MATCH")
+    print("FINISHED AUDITING description")
 
 # Main Function
 def automate(sheetname):
@@ -146,10 +139,13 @@ def automate(sheetname):
     # saves spreadsheet being used
     sheet = client.open(sheetname).sheet1
 
+    descriptions = getVideoDescriptions(sheet)
+    # print(descriptions)
+
     # creates arrays for video urls and college names
     # video_URLS = getVideoURLS(sheet)
     college_names = getCollegeNames(sheet)
-    print(college_names)
+    # print(college_names)
 
 
     # creates array of video titles
@@ -166,6 +162,9 @@ def automate(sheetname):
 #############FUNCTIONS#####################
 
     #1 -> Uses spread sheet to acquire all iped ids
-    getDescription(sheet, college_names)
+    # getDescription(sheet, college_names)
+    # 2
+    formatDescription(sheet, descriptions)
+
 
 automate("Wikipedia DB")
