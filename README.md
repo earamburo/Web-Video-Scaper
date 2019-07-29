@@ -7,6 +7,10 @@ Automate Content Uploading
 
 # Installation
 
+  *RECOMMENDED*
+  Create a virtual enviorment so that you don't affect your computer's packages directly:
+  https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
+
   Libraries needed to be installed: 
   pip install : gspread, httplib2, oauthlib, apiclient, and pytube
   
