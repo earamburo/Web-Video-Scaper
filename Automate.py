@@ -25,20 +25,22 @@ import youtube_dl
 from youtube_dl import YoutubeDL
 
 
-import pyscreenshot as ImageGrab
+# import pyscreenshot as ImageGrab
 import os
 
 
 # chromedriver location
 
-chromedriver = '/Users/admin/Desktop/Web-Scraper/chromedriver'
+chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
 driver = webdriver.Chrome(chromedriver)
 
 # use credentials to create a client to interact with the Google Drive API
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
+
+# credentials location         # 
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/admin/Desktop/Web-Scraper/client_secret.json", scope)
+    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
 
@@ -102,8 +104,9 @@ def getIpeds(sheet, college_names):
     # goes through every school in the array
     for school in college_names:
         time.sleep(2)
-        # searches through every school in ipeds
-        f = open(Path(r'/Users/admin/Desktop/Web-Scraper')/"ipeds_ids.csv")
+
+        # ipeds spreadsheet location
+        f = open(Path(r'/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/')/"ipeds_ids.csv")
         ipeds_data = csv.reader(f)
 
         for ipeds_id in ipeds_data:
@@ -405,8 +408,8 @@ def transferURLS(video_titles, college_names, driver, sheet):
 
     row_count = 1
     count = 0
-    name_counter = 1250
-    state = 'LC'
+    name_counter = 1
+    state = 'MI'
 
     for title in video_titles:
        
@@ -530,7 +533,7 @@ def automate(sheetname):
     #deleteVideos()
 
 
-automate("LC Import Test")
+automate("Mississippi_Videos_Import_Format")
 
 
 

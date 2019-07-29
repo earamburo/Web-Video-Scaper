@@ -24,12 +24,14 @@ from pathlib import Path
 import youtube_dl
 from youtube_dl import YoutubeDL
 
+import re
+
 
 
 
 # chromedriver location
 
-chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
 
 driver = webdriver.Chrome(chromedriver)
 
@@ -37,7 +39,7 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/client_secret.json", scope)
+    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
 
@@ -70,11 +72,9 @@ def getVideoTitles(sheet):
 # function to remove all college name formatting
 def stripFormat(str):
     # print("Strip Format\n")
-    str = str.replace("[", "").replace("]","").replace("1","").replace("1 ","").replace("2","").replace("2 ","").replace("3","").replace("3 ","").replace("4","").replace("4 ","")\
-    .replace("5","").replace("5 ","").replace("6","").replace("6 ","").replace("7","").replace("7 ","").replace("8","").replace("8 ","")\
-    .replace("9","").replace("9 ","").replace("0","").replace("0 ","")
-    return str.strip()
+    str = re.sub('\[.*?\]','', str)
 
+    return str
 
 # Function to first paragraph on Wikipedia
 def getDescription(sheet, college_names):
@@ -124,6 +124,7 @@ def formatDescription(sheet, descriptions):
         d = stripFormat(d)
         print(d)
         # print("Checking categories")
+        time.sleep(10)
         cell_reference = "C" + str(row_count)
         # print(cell_reference)
         sheet.update_acell(cell_reference,d)
