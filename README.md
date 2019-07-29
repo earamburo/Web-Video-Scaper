@@ -26,6 +26,9 @@ Automate Content Uploading
   Install pytube - $ pip install pytube
   
   Install youtube-dl $pip install youtube-dl OR https://ytdl-org.github.io/youtube-dl/download.html
+  
+  Update Python API client pip install --upgrade google-api-python-client
+  
 # API Reference
 
  Google Sheets - https://developers.google.com/sheets/api/guides/concepts
