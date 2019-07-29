@@ -27,7 +27,7 @@ Automate Content Uploading
   
   Install youtube-dl $pip install youtube-dl OR https://ytdl-org.github.io/youtube-dl/download.html
   
-  Update Python API client pip install --upgrade google-api-python-client
+  Update Python API client $pip install --upgrade google-api-python-client
   
 # API Reference
 
