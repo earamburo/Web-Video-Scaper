@@ -31,7 +31,7 @@ import re
 
 # chromedriver location
 
-chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
 
 driver = webdriver.Chrome(chromedriver)
 
@@ -39,7 +39,7 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
+    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
 
@@ -70,10 +70,15 @@ def getVideoTitles(sheet):
 #     return str
 
 # function to remove all college name formatting
-def stripFormat(str):
+def stripCollegeName(str):
+    str = str.replace("-", " ")
+    return str
+
+
+
+def stripDescription(str):
     # print("Strip Format\n")
     str = re.sub('\[.*?\]','', str)
-
     return str
 
 # Function to first paragraph on Wikipedia
@@ -82,7 +87,7 @@ def getDescription(sheet, college_names):
     row_count = 1
     # goes through every school in the array
     for college in college_names:
-        college = stripFormat(college)
+        college = stripCollegeName(college)
         print(college+"\n")
         driver.get("https://en.wikipedia.org/wiki/"+ college)
         time.sleep(3)
@@ -121,7 +126,7 @@ def formatDescription(sheet, descriptions):
     row_count=1
     # descriptions = sheet.col_values(3)
     for d in descriptions:
-        d = stripFormat(d)
+        d = stripDescription(d)
         print(d)
         # print("Checking categories")
         time.sleep(10)
@@ -132,6 +137,25 @@ def formatDescription(sheet, descriptions):
         row_count+=1
         # print("MATCH")
     print("FINISHED AUDITING description")
+
+def getHeaderImage(sheet, college_names):
+    # for college in college_names:
+    driver.get("https://www.google.com/imghp?hl=en")
+    time.sleep(3)
+    search = driver.find_element_by_name("q")
+    search.send_keys("University of Georgia")
+    search.send_keys(Keys.RETURN)
+    time.sleep(5)
+
+    tools = driver.find_element_by_id("hdtb-tls")
+    tools.click()
+
+    more_tools = driver.find_element_by_xpath("/html/body/div[@id='main']/div[@id='cnt']/div[@id='rshdr']/div[@id='top_nav']/div[1]//div[@id='hdtbMenus']/div[@class='hdtb-mn-cont']/div[2]")
+    # size = more_tools[1]
+    print(more_tools.text)
+    more_tools.click()
+
+
 
 # Main Function
 def automate(sheetname):
@@ -165,7 +189,9 @@ def automate(sheetname):
     #1 -> Uses spread sheet to acquire all iped ids
     # getDescription(sheet, college_names)
     # 2
-    formatDescription(sheet, descriptions)
+    # formatDescription(sheet, descriptions)
+    #3
+    getHeaderImage(sheet, college_names)
 
 
 automate("Wikipedia DB")
