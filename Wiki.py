@@ -26,12 +26,12 @@ from youtube_dl import YoutubeDL
 
 import re
 
-
+from google_images_download import google_images_download  
 
 
 # chromedriver location
 
-chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
 
 driver = webdriver.Chrome(chromedriver)
 
@@ -39,8 +39,11 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/credentials.json", scope)
+    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
+
+# Needed Google images download
+response = google_images_download.googleimagesdownload()
 
 
 # Creates array of college names
@@ -71,7 +74,7 @@ def getVideoTitles(sheet):
 
 # function to remove all college name formatting
 def stripCollegeName(str):
-    str = str.replace("-", " ")
+    str = str.replace("-", "_").replace(" ","_")
     return str
 
 
@@ -94,10 +97,39 @@ def getDescription(sheet, college_names):
 
         try:
             # Grabs getDescription
-            description = driver.find_element_by_xpath("//*[@class='mw-parser-output']/p[2]")
-            print(description.text+"\n")
+            description = driver.find_element_by_xpath("//*[@class='mw-parser-output']/p[1]")
+            description = stripDescription(description.text)
+            # print(description.text+"\n")
+            print(description+"\n")
+
+
+            # Handling Errors
+
+            if 'to:' in description:
+                description = 'CAMPUS ERROR'
+            
+            elif description == "":
+                print('NONE ERROR')
+                description = driver.find_element_by_xpath("//*[@class='mw-parser-output']/p[2]")
+                description = stripDescription(description.text)
+                # print(description)
+
+
+            elif 'Coordinates:' in description:
+                
+                description = driver.find_element_by_xpath("//*[@class='mw-parser-output']/p[2]")
+                # print(description.text)
+                description = stripDescription(description.text)
+                # print('\nCoordinate ERROR')
+                # print (len(description))
+
+            # elif len(description) <= 125:
+            #      description = 'SCHOOL NOT FOUND'
+            #      # print (len(description))
+
+            print(description)
             cell_reference = "C" + str(row_count)
-            sheet.update_acell(cell_reference, description.text)
+            sheet.update_acell(cell_reference, description)
 
             # Clicks APA Citation link
             citation_link = driver.find_element_by_xpath("//*[@id='t-cite']/a")
@@ -138,23 +170,64 @@ def formatDescription(sheet, descriptions):
         # print("MATCH")
     print("FINISHED AUDITING description")
 
-def getHeaderImage(sheet, college_names):
-    # for college in college_names:
-    driver.get("https://www.google.com/imghp?hl=en")
-    time.sleep(3)
-    search = driver.find_element_by_name("q")
-    search.send_keys("University of Georgia")
-    search.send_keys(Keys.RETURN)
-    time.sleep(5)
+def downloadImages(sheet, college_names):
+    row_count = 1 
+    for college in college_names:
+    # college_name = "University of Georgia"
+        arguments = {"keywords": college +" campus", 
+                     "format": "jpg", 
+                     "limit":1, 
+                     "print_urls":True, 
+                     "size": "large", 
+                     "aspect_ratio": "wide",
+                     "no_directory": "/Users/admin/Downloads/header_images",
+                     "no_numbering": True
+                      } 
+        try: 
+            response.download(arguments) 
+          
+        # Handling File NotFound Error     
+        except FileNotFoundError:  
+            arguments = {"keywords": college +" campus", 
+                         "format": "jpg", 
+                         "limit":1, 
+                         "print_urls":True, 
+                         "size": "large", 
+                         "aspect_ratio": "wide",
+                         "no_directory": "/Users/admin/Downloads/header_images",
+                         "no_numbering": True
+                         } 
+                           
+            # Providing arguments for the searched query 
+            try: 
+                # Downloading the photos based 
+                # on the given arguments 
+                response.download(arguments)  
+            except: 
+                pass
 
-    tools = driver.find_element_by_id("hdtb-tls")
-    tools.click()
+        for filename in os.listdir("/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/downloads"):
+            # print(filename)
+            if not filename.startswith('.'):
+                print(filename)
+                src = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/downloads/' + (filename)       
+                dst = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/images/' +college+".jpg" 
+                # # print("Renaming thumbnail")            
+                os.rename(src, dst)
 
-    more_tools = driver.find_element_by_xpath("/html/body/div[@id='main']/div[@id='cnt']/div[@id='rshdr']/div[@id='top_nav']/div[1]//div[@id='hdtbMenus']/div[@class='hdtb-mn-cont']/div[2]")
-    # size = more_tools[1]
-    print(more_tools.text)
-    more_tools.click()
+                
 
+                time.sleep(5)
+                cell_reference = "E" + str(row_count)
+                # sheet.update_acell(cell_reference,college+ "-campus.jpg")
+                sheet.update_acell(cell_reference,college+".jpg")
+                print("RENAMED")
+                # print("DESTINATION: " +dst)
+                # src = '/Users/admin/Downloads/' + (filename)
+                # dst = '/Users/admin/Desktop/Thumbnails/' +college_names[row_count]+video_titles[row_count]+".jpg"
+                # os.rename(src, dst)
+                time.sleep(5)
+                row_count += 1        
 
 
 # Main Function
@@ -187,11 +260,9 @@ def automate(sheetname):
 #############FUNCTIONS#####################
 
     #1 -> Uses spread sheet to acquire all iped ids
-    # getDescription(sheet, college_names)
+    getDescription(sheet, college_names)
     # 2
-    # formatDescription(sheet, descriptions)
-    #3
-    getHeaderImage(sheet, college_names)
+    # downloadImages(sheet, college_names)
 
 
 automate("Wikipedia DB")
