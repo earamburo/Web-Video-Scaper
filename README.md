@@ -36,11 +36,12 @@ Automate Content Uploading
  Pytube - https://python-pytube.readthedocs.io/en/latest/index.html
  
 # How to Use
-  1. Make sure all libraries are installed and all APIs are working properly
-  2. Format spreadsheet according to import format (Do not include the top row of import_format)
-  3. "Automate(state_name)" replace x with spreadsheet name
-  4. After the program terminates, Audit categories.
-  5. Audit Video Titles
+  1. Make sure the chromedrive and API credentials paths are correct
+  2. Make sure all libraries are installed and all APIs are working properly
+  3. Format spreadsheet according to import format (Do not include the top row of import_format)
+  4. "Automate(state_name)" replace x with spreadsheet name
+  5. After the program terminates, Audit categories.
+  6. Audit Video Titles
   7. Add the top row of import_format to first row of spreadsheet
   8. Copy screenshot file names to spreadsheet to the proper row
   9. Download properly formatted spreadsheet as .csv
