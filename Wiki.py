@@ -82,6 +82,7 @@ def stripCollegeName(str):
 def stripDescription(str):
     # print("Strip Format\n")
     str = re.sub('\[.*?\]','', str)
+    str = str.rstrip();
     return str
 
 # Function to first paragraph on Wikipedia
@@ -100,7 +101,7 @@ def getDescription(sheet, college_names):
             description = driver.find_element_by_xpath("//*[@class='mw-parser-output']/p[1]")
             description = stripDescription(description.text)
             # print(description.text+"\n")
-            print(description+"\n")
+            # print(description+"\n")
 
 
             # Handling Errors
@@ -114,6 +115,11 @@ def getDescription(sheet, college_names):
                 description = stripDescription(description.text)
                 # print(description)
 
+            elif description == " ":
+                print('SPACE ERROR')
+                description = driver.find_element_by_xpath("//*[@class='mw-parser-output']/p[2]")
+                description = stripDescription(description.text)
+                # print(description)
 
             elif 'Coordinates:' in description:
                 
@@ -150,8 +156,9 @@ def getDescription(sheet, college_names):
         except NoSuchElementException:
             # Handles the campus error
             cell_reference = "C" + str(row_count)
-            sheet.update_acell(cell_reference, "CAMPUS ERROR")
+            sheet.update_acell(cell_reference, "ELEMENT NOT FOUND")
             row_count+=1
+            pass
 
 def formatDescription(sheet, descriptions):
     print("Formatting description\n")
@@ -218,7 +225,7 @@ def downloadImages(sheet, college_names):
                 
 
                 time.sleep(5)
-                cell_reference = "E" + str(row_count)
+                cell_reference = "H" + str(row_count)
                 # sheet.update_acell(cell_reference,college+ "-campus.jpg")
                 sheet.update_acell(cell_reference,college+".jpg")
                 print("RENAMED")
@@ -227,7 +234,15 @@ def downloadImages(sheet, college_names):
                 # dst = '/Users/admin/Desktop/Thumbnails/' +college_names[row_count]+video_titles[row_count]+".jpg"
                 # os.rename(src, dst)
                 time.sleep(5)
-                row_count += 1        
+                row_count += 1       
+
+def quickFix(sheet, college_names):
+    row_count = 1 
+    for college in college_names:
+        cell_reference = "G" + str(row_count)
+        sheet.update_acell(cell_reference,college+".jpg")
+        row_count+=1
+        time.sleep(5)
 
 
 # Main Function
@@ -263,6 +278,8 @@ def automate(sheetname):
     getDescription(sheet, college_names)
     # 2
     # downloadImages(sheet, college_names)
+    # 3
+    # quickFix(sheet, college_names)
 
 
-automate("Wikipedia DB")
+automate("Wiki TEST")
