@@ -67,13 +67,17 @@ def getResultURLS(sheet):
     RURLArr = sheet.col_values(6)
     return RURLArr
 
-# function to remove all college name formatting
-# def stripFormat(str):
-#     # print("Strip Format\n")
-#     str = str.replace("[", "").replace("]","").replace("1","").replace("1 ","").replace("2","").replace("2 ","").replace("3","").replace("3 ","").replace("4","").replace("4 ","")\
-#     .replace("5","").replace("5 ","").replace("6","").replace("6 ","").replace("7","").replace("7 ","").replace("8","").replace("8 ","")\
-#     .replace("9","").replace("9 ","").replace("0","").replace("0 ","")\
-#     return str
+
+
+def formatURLs(sheet, result_urls):
+    row_count = 1
+    for result in result_urls:
+        # strips URL of all <>
+        result = re.sub('\<.*?\>','', result)
+        cell_reference = "F" + str(row_count)
+        sheet.update_acell(cell_reference,result)
+        row_count+=1
+        time.sleep(3)
 
 # function to remove all college name formatting
 def stripCollegeName(str):
@@ -88,7 +92,7 @@ def stripTitle(str):
 
 def formatCollege(str):
     str = str.replace("_", " ").replace("south carolina law","University of South Carolina School of Law").replace("carthage","Carthage College").replace("florida southwestern","Florida Southwestern State College")\
-    .replace("uf warrington mba","University of Florida").replace("uw stevens point","University of Wisconsin - Stevens Point")
+    .replace("uf warrington mba","University of Florida").replace("uw stevens point","University of Wisconsin - Stevens Point").replace("grand valley state university","Grand Valley State University")
     return str
 
 
@@ -101,28 +105,32 @@ def getSchoolName(sheet, result_urls):
         print(school_name)
         cell_reference = "A" + str(row_count)
         sheet.update_acell(cell_reference,school_name)
+        row_count+=1
+        time.sleep(3)
 
+def getTitle(sheet, result_urls):
+    row_count = 1
+    for url in result_urls:
+        url = url.split("/")
         video_title = url[4]
         print(video_title)
         video_title = stripTitle(video_title)
         print(video_title+"\n")
         cell_reference = "D" + str(row_count)
         sheet.update_acell(cell_reference,video_title)
-
         row_count+=1
         time.sleep(3)
 
 
-def formatURLs(sheet, result_urls):
+def getCategory(sheet,video_titles):
     row_count = 1
-    for result in result_urls:
-        # strips URL of all <>
-        result = re.sub('\<.*?\>','', result)
-        cell_reference = "E" + str(row_count)
-        sheet.update_acell(cell_reference,result)
+    for title in video_titles:
+        if "Academics" or "academics" in title:
+            print(title)
+            cell_reference = "E" + str(row_count)
+            sheet.update_acell(cell_reference,"Academics")
+            time.sleep(5)
         row_count+=1
-        time.sleep(3)
-
 
 # Main Function
 def automate(sheetname):
@@ -141,7 +149,7 @@ def automate(sheetname):
     result_urls = getResultURLS(sheet)
 
     # creates array of video titles
-    # video_titles = getVideoTitles(sheet)
+    video_titles = getVideoTitles(sheet)
 
     # creates array of video categories
     # video_categories = formatCategories(sheet)
@@ -154,7 +162,8 @@ def automate(sheetname):
 #############FUNCTIONS#####################
 
     # formatURLs(sheet, result_urls)
-
-    getSchoolName(sheet, result_urls)
+    # getSchoolName(sheet, result_urls)
+    getTitle(sheet,result_urls)
+    # getCategory(sheet, video_titles)
 
 automate("Specific imports")
