@@ -83,11 +83,12 @@ def stripCollegeName(str):
 def stripTitle(str):
     str = str.replace(".mp4","").replace("_"," ").replace("1","").replace("1 ","").replace("2","").replace("2 ","").replace("3","").replace("3 ","").replace("4","").replace("4 ","")\
     .replace("5","").replace("5 ","").replace("6","").replace("6 ","").replace("7","").replace("7 ","").replace("8","").replace("8 ","")\
-    .replace("9","").replace("9 ","").replace("0","").replace("0 ","").strip().title()
+    .replace("9","").replace("9 ","").replace("0","").replace("0 ","").replace("etc","").replace("-"," ").replace("  ","").replace("   "," ").replace(".-","").replace(".","").strip().title()
     return str
 
 def formatCollege(str):
-    str = str.replace("South Carolina Law","University of South Carolina School of Law")
+    str = str.replace("_", " ").replace("south carolina law","University of South Carolina School of Law").replace("carthage","Carthage College").replace("florida southwestern","Florida Southwestern State College")\
+    .replace("uf warrington mba","University of Florida").replace("uw stevens point","University of Wisconsin - Stevens Point")
     return str
 
 
@@ -95,17 +96,16 @@ def getSchoolName(sheet, result_urls):
     row_count = 1
     for url in result_urls:
         url = url.split("/")
-        # school_name = url[3]
-        # school_name = stripCollegeName(school_name)
-        # school_name = formatCollege(school_name)
-        # print(school_name)
-        # cell_reference = "A" + str(row_count)
-        # sheet.update_acell(cell_reference,school_name)
+        school_name = url[3]
+        school_name = formatCollege(school_name)
+        print(school_name)
+        cell_reference = "A" + str(row_count)
+        sheet.update_acell(cell_reference,school_name)
 
         video_title = url[4]
         print(video_title)
         video_title = stripTitle(video_title)
-        # print(video_title)
+        print(video_title+"\n")
         cell_reference = "D" + str(row_count)
         sheet.update_acell(cell_reference,video_title)
 
