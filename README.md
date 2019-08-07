@@ -12,7 +12,7 @@ Automate Content Uploading
   https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/
 
   Libraries needed to be installed: 
-  pip install : gspread, httplib2, oauthlib, apiclient, and pytube
+  pip install : gspread, httplib2, oauthlib, oauth2client, apiclient, and pytube
   
   Must install selenium - $ pip install selenium
   
