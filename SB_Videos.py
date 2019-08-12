@@ -28,10 +28,12 @@ import re
 
 from google_images_download import google_images_download
 
+import PIL
+from PIL import Image
 
 # chromedriver location
 
-chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
 
 driver = webdriver.Chrome(chromedriver)
 
@@ -39,11 +41,14 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
+    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
 # Needed Google images download
 response = google_images_download.googleimagesdownload()
+
+driver.set_page_load_timeout(15)
+driver.maximize_window()
 
 
 # Creates array of college names
@@ -141,27 +146,93 @@ def formatTitle(sheet):
     row_count=1
     titles = sheet.col_values(4)
     for title in titles:
-        if title == 'STEM':
-            row_count+=1
-            pass
-        else:
-            title = str.strip(title).lower().title()
-            print(title)
 
-            cell_reference = "D" + str(row_count)
-            # print(cell_reference)
-            sheet.update_acell(cell_reference,title)
-            time.sleep(3)
-            row_count+=1
-            # print("MATCH")
-            # print("End")
+        title = str.strip(title).lower().title()
+        print(title)
+
+        cell_reference = "D" + str(row_count)
+        # print(cell_reference)
+        sheet.update_acell(cell_reference,title)
+        time.sleep(3)
+        row_count+=1
+        # print("MATCH")
+        # print("End")
 
     print("Format Titles complete")
 
 
-def getScreenshot(sheet, video_URLS):
+def getScreenshot(sheet, video_URLS,college_names):
+    array_count=0
+    row_count=1
     for url in video_URLS:
-        driver.get(url)
+        print(url)
+        f = open('Test.html','w')
+        message ="""<!DOCTYPE html>
+        <html>
+        <body>
+        <video width="800" height="720" muted autoplay controls>
+          <source src="""+url+""" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        </body>
+        </html>
+        """
+        f.write(message)
+        f.close()
+        file ='/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/Test.html'
+        filename = 'file://'+file
+        driver.get(filename)
+        time.sleep(7)
+
+        # Takes screenshot
+        print("Taking screenshot")
+        element = driver.find_element_by_xpath("//video");
+        location = element.location;
+        size = element.size;
+        print(size)
+        # print(location)
+        name = college_names[array_count]+str(row_count)+'.png'
+        driver.save_screenshot('/Users/edwinaramburo/Downloads/'+name);
+        x = location['x'];
+        print(x)
+        y = location['y'];
+        #Cropping
+        print("Cropping Image")
+        im = Image.open('/Users/edwinaramburo/Downloads/'+name)
+        im = im.crop((20, 300, 1500, 1100))
+        im.save('/Users/edwinaramburo/Downloads/'+name)
+        time.sleep(3)
+        #
+        # for filename in os.listdir("/Users/edwinaramburo/Downloads/"):
+        #
+        #     src = '/Users/edwinaramburo/Downloads/' + (filename)
+        #     # dst = '/Users/admin/Desktop/Thumbnails/'+ college_names[count] +"___"+ video_titles[count]+".jpg"
+        #     dst = '/Users/edwinaramburo//SB_Thumbnails/' + (filename)
+        #
+        #     if filename =="'/Users/edwinaramburo/Downloads/.DS_Store":
+        #         print("pass")
+        #         pass
+        #     # print("Renaming thumbnail")
+        #     os.rename(src, dst)
+        #     # if filename ==".DS_Store":
+        #     #     pass
+        #     time.sleep(5)
+        #     cell_reference = "I" + str(row_count)
+        #     sheet.update_acell(cell_reference, filename)
+        #     print("FILENAME: "+filename)
+        #     # print("DESTINATION: " +dst)
+        #     # src = '/Users/admin/Downloads/' + (filename)
+        #     # dst = '/Users/admin/Desktop/Thumbnails/' +college_names[row_count]+video_titles[row_count]+".jpg"
+        #     # os.rename(src, dst)
+        #     time.sleep(5)
+
+
+
+
+
+        array_count+=1
+        row_count+=1
 
 
 # Main Function
@@ -197,7 +268,7 @@ def automate(sheetname):
     # getSchoolName(sheet, result_urls)
     # getTitle(sheet,result_urls)
     # getCategory(sheet, video_titles)
-    # getScreenshot(sheet,video_URLS)
-    formatTitle(sheet)
+    getScreenshot(sheet,video_URLS,college_names)
+    # formatTitle(sheet)
 
 automate("Python Testing")
