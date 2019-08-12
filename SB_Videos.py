@@ -67,6 +67,11 @@ def getResultURLS(sheet):
     RURLArr = sheet.col_values(6)
     return RURLArr
 
+# Creates array of Video URLs
+def getVideoURLS(sheet):
+    URLArr = sheet.col_values(6)
+    return URLArr
+
 
 
 def formatURLs(sheet, result_urls):
@@ -131,6 +136,30 @@ def getCategory(sheet,video_titles):
             sheet.update_acell(cell_reference,"Academics")
             time.sleep(5)
         row_count+=1
+def formatTitle(sheet):
+    print("Formatting Titles\n")
+    row_count=1
+    titles = sheet.col_values(4)
+    for title in titles:
+
+        title = str.strip(title).lower().title()
+        print(title)
+
+        cell_reference = "D" + str(row_count)
+        # print(cell_reference)
+        sheet.update_acell(cell_reference,title)
+        time.sleep(3)
+        row_count+=1
+        # print("MATCH")
+        # print("End")
+
+    print("Format Titles complete")
+
+
+def getScreenshot(sheet, video_URLS):
+    for url in video_URLS:
+        driver.get(url)
+
 
 # Main Function
 def automate(sheetname):
@@ -143,7 +172,7 @@ def automate(sheetname):
     # print(descriptions)
 
     # creates arrays for video urls and college names
-    # video_URLS = getVideoURLS(sheet)
+    video_URLS = getVideoURLS(sheet)
     college_names = getCollegeNames(sheet)
     # print(college_names)
     result_urls = getResultURLS(sheet)
@@ -163,7 +192,9 @@ def automate(sheetname):
 
     # formatURLs(sheet, result_urls)
     # getSchoolName(sheet, result_urls)
-    getTitle(sheet,result_urls)
+    # getTitle(sheet,result_urls)
     # getCategory(sheet, video_titles)
+    # getScreenshot(sheet,video_URLS)
+    formatTitle(sheet)
 
-automate("Specific imports")
+automate("Python Testing")
