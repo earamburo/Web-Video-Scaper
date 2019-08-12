@@ -31,7 +31,7 @@ from google_images_download import google_images_download
 
 # chromedriver location
 
-chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
 
 driver = webdriver.Chrome(chromedriver)
 
@@ -39,7 +39,7 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/credentials.json", scope)
+    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
 # Needed Google images download
@@ -141,17 +141,20 @@ def formatTitle(sheet):
     row_count=1
     titles = sheet.col_values(4)
     for title in titles:
+        if title == 'STEM':
+            row_count+=1
+            pass
+        else:
+            title = str.strip(title).lower().title()
+            print(title)
 
-        title = str.strip(title).lower().title()
-        print(title)
-
-        cell_reference = "D" + str(row_count)
-        # print(cell_reference)
-        sheet.update_acell(cell_reference,title)
-        time.sleep(3)
-        row_count+=1
-        # print("MATCH")
-        # print("End")
+            cell_reference = "D" + str(row_count)
+            # print(cell_reference)
+            sheet.update_acell(cell_reference,title)
+            time.sleep(3)
+            row_count+=1
+            # print("MATCH")
+            # print("End")
 
     print("Format Titles complete")
 
