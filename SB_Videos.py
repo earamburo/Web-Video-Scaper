@@ -33,7 +33,7 @@ from PIL import Image
 
 # chromedriver location
 
-chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
 
 driver = webdriver.Chrome(chromedriver)
 
@@ -41,7 +41,7 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/credentials.json", scope)
+    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
 # Needed Google images download
@@ -163,7 +163,8 @@ def formatTitle(sheet):
 
 def getScreenshot(sheet, video_URLS,college_names):
     array_count=0
-    row_count=1
+    row_count=598
+    screenshot_count=598
     for url in video_URLS:
         print(url)
         f = open('Test.html','w')
@@ -180,7 +181,7 @@ def getScreenshot(sheet, video_URLS,college_names):
         """
         f.write(message)
         f.close()
-        file ='/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/Test.html'
+        file ='/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/Test.html'
         filename = 'file://'+file
         driver.get(filename)
         time.sleep(7)
@@ -192,16 +193,16 @@ def getScreenshot(sheet, video_URLS,college_names):
         size = element.size;
         print(size)
         # print(location)
-        name = college_names[array_count]+str(row_count)+'.png'
-        driver.save_screenshot('/Users/edwinaramburo/Downloads/'+name);
+        name = college_names[array_count]+str(screenshot_count)+'.png'
+        driver.save_screenshot('/Users/admin/Downloads/'+name);
         x = location['x'];
         print(x)
         y = location['y'];
         #Cropping
         print("Cropping Image")
-        im = Image.open('/Users/edwinaramburo/Downloads/'+name)
-        im = im.crop((20, 300, 1500, 1100))
-        im.save('/Users/edwinaramburo/Downloads/'+name)
+        im = Image.open('/Users/admin/Downloads/'+name)
+        im = im.crop((20, 150, 700, 550))
+        im.save('/Users/admin/Downloads/'+name)
         time.sleep(3)
         #
         # for filename in os.listdir("/Users/edwinaramburo/Downloads/"):
@@ -230,7 +231,7 @@ def getScreenshot(sheet, video_URLS,college_names):
 
 
 
-
+        screenshot_count+=1
         array_count+=1
         row_count+=1
 
