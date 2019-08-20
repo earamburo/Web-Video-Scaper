@@ -38,7 +38,7 @@ driver = webdriver.Chrome(chromedriver)
 scope = ['https://spreadsheets.google.com/feeds',
          'https://www.googleapis.com/auth/drive']
 
-# credentials location         # 
+# credentials location         #
 creds = ServiceAccountCredentials.from_json_keyfile_name(
     "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
@@ -119,6 +119,29 @@ def getIpeds(sheet, college_names):
         row_count += 1
 
         f.close()
+# Function to get all ipeds data
+def getSchoolID(sheet, college_names):
+    print("Getting School ID...\n")
+    row_count = 1
+
+    # goes through every school in the array
+    for school in college_names:
+        time.sleep(2)
+
+        # ipeds spreadsheet location
+        f = open(Path(r'/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/')/"school_ids.csv")
+        school_id_data = csv.reader(f)
+
+        for school_id in school_id_data:
+            # if ipeds matches update cell
+            if school_id[1] == school:
+                print("Found")
+                cell_reference = "B" + str(row_count)
+                sheet.update_acell(cell_reference, school_id[0])
+
+        row_count += 1
+
+        f.close()
 
 def getTitleFromYouTube(video_URLS, driver, sheet):
      print("Getting titles")
@@ -170,7 +193,7 @@ def formatCategories(sheet):
             row_count+=1
             print("No Match")
 
-    print("FINISHED AUDITING CATEGORIES")        
+    print("FINISHED AUDITING CATEGORIES")
 
 
 
@@ -189,15 +212,15 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
         download = driver.find_element_by_xpath("//*[@id='im']/div[4]/div[2]/form/input")
         download.click()   # downloads url
         time.sleep(5)
-        
+
         for filename in os.listdir("/Users/admin/Downloads/"):
 
             if filename ==".DS_Store": # Handles the first hidden file in the folder
                 pass
 
-            # uses the os.stat functions for file sizing 
+            # uses the os.stat functions for file sizing
             file = os.stat("/Users/admin/Downloads/" + filename)
-            
+
             if(file.st_size) == 0:
                 os.unlink("/Users/admin/Downloads/" + filename) #deletes files
                 print('THUMBNAIL ERROR') #notifies me of error
@@ -208,16 +231,16 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
                 ########################################################
 
                 download = driver.find_element_by_xpath("//*[@id='im']/div[1]/div[2]/form/input")
-                download.click()   # downloads url 
+                download.click()   # downloads url
                 time.sleep(5)
                 for filename in os.listdir("/Users/admin/Downloads/"):
 
                     if filename ==".DS_Store":
-                        pass     
-                   
-                    src = '/Users/admin/Downloads/' + (filename)       
-                    dst = '/Users/admin/Desktop/Thumbnails/' + (filename)  
-                    # print("Renaming thumbnail")            
+                        pass
+
+                    src = '/Users/admin/Downloads/' + (filename)
+                    dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
+                    # print("Renaming thumbnail")
                     os.rename(src, dst)
 
 
@@ -227,12 +250,12 @@ def getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet):
 
                 src = '/Users/admin/Downloads/' + (filename)
                 dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
-                # print("Renaming thumbnail") 
+                # print("Renaming thumbnail")
 
                 # This will rename the downloaded thumbnail
                 os.rename(src, dst)
-                
-            
+
+
 
             time.sleep(5)
             cell_reference = "I" + str(row_count)
@@ -310,8 +333,8 @@ def downloadVideos(videos_URLS, college_names,sheet):
                     print("RENAMED\n")
                     row_count+=1
                     time.sleep(3)
-            name_counter+=1     
-       
+            name_counter+=1
+
 
 
 
@@ -322,7 +345,7 @@ def transcodeVideos(driver, video_titles):
 
     # for filename in os.listdir("/Users/admin/Desktop/Renamed/"):
     #     print(filename[count])
-    #     count+=1    
+    #     count+=1
     wait = WebDriverWait(driver, 200)
     downloaded_Videos = os.listdir("/Users/admin/Desktop/Videos")
 
@@ -412,7 +435,7 @@ def transferURLS(video_titles, college_names, driver, sheet):
     state = 'MI'
 
     for title in video_titles:
-       
+
         # print(college_names)
         search = driver.find_element_by_name('search')
         search.click()
@@ -431,7 +454,7 @@ def transferURLS(video_titles, college_names, driver, sheet):
         time.sleep(3)
         url = driver.find_element_by_partial_link_text('http').text
         # url.click()
-        
+
         # print(url)
 
         cell_reference = "L" + str(row_count)
@@ -443,18 +466,18 @@ def transferURLS(video_titles, college_names, driver, sheet):
 
         # print('Updated needs to clear')
         search = driver.find_element_by_name('search')
-        search.click() 
+        search.click()
         search.clear()
-        
+
             # print('Complete')
         # except NoSuchElementException:
         #     search = driver.find_element_by_name('search')
-        #     search.click() 
+        #     search.click()
         #     search.clear()
         #     row_count += 1
         #     count+=1
         #     name_counter+=1
-        #     pass    
+        #     pass
 
 
 
@@ -517,7 +540,7 @@ def automate(sheetname):
 
     #5 -> downloads all videos and saves them in "College Name___ Video Title"
     # downloadVideos(video_URLS,college_names,sheet)
-    
+
 
     #5 -> downloads all videos and saves them in "College Name___ Video Title"
     # downloadVideos(video_URLS,college_names,sheet)
@@ -527,15 +550,12 @@ def automate(sheetname):
     # transcodeVideos(driver, video_titles)
 
     #7 -> transfer transcoded urls to spreadsheet
-    transferURLS(video_titles,college_names,driver,sheet);
+    # transferURLS(video_titles,college_names,driver,sheet);
 
     #8 -> deletes videos in downloaded video folders
     #deleteVideos()
 
+    # 9 matchinh school ids
+    getSchoolID(sheet, college_names)
 
-automate("Mississippi_Videos_Import_Format")
-
-
-
-
-
+automate("Specific imports")
