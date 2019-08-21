@@ -27,6 +27,7 @@ from youtube_dl import YoutubeDL
 
 # import pyscreenshot as ImageGrab
 import os
+import string
 
 
 # chromedriver folder
@@ -60,8 +61,17 @@ def getVideoURLS(sheet):
     URLArr = sheet.col_values(6)
     return URLArr
 
+# function to remove all college name formatting
+def stripFormat(str):
+    # print("Strip Format\n")
+    str = str.lower().replace("a","").replace("b","").replace("c", " ").replace("d", " ").replace("e", "").replace("f","").replace("g","").replace("h", " ")\
+    .replace("i","").replace("j","").replace("k","").replace("l","").replace("m","").replace("n","")\
+    .replace("o","").replace("p","").replace("q","").replace("r","").replace("s","")\
+    .replace("t","").replace("u","").replace("v","").replace("w","").replace("x","").replace("y","").replace("z","").rstrip('.')
+    return str.strip()
+
 # Gets Title from Youtube
-def sport_stats(driver, sheet, row_count, college):
+def gpa_stats(driver, sheet, row_count, college):
 
     print("Sport stats")
     try:
@@ -75,15 +85,25 @@ def sport_stats(driver, sheet, row_count, college):
         hs_gpa = hs_gpa.text
 
         cell_reference = "E" + str(row_count)
-        sheet.update_acell(cell_reference, hs_gpa)  
+        sheet.update_acell(cell_reference, hs_gpa)
         # update spreadsheet with video title
         # # if row_count is len(video_URLS):
         # #     break
         time.sleep(5)
     except NoSuchElementException:
-        print("DNE")
-        time.sleep(3)
-        pass
+        try:
+            driver.get("https://www.google.com/")
+            search = driver.find_element_by_xpath("//*[@id='tsf']/div[2]/div/div[1]/div/div[1]/input")
+            search.send_keys(college + " high school average gpa")     # inputs video url
+            search.send_keys(Keys.RETURN)
+            hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span")
+            hs_gpa = stripFormat(hs_gpa.text[0:45])
+            print(hs_gpa)
+            cell_reference = "E" + str(row_count)
+            sheet.update_acell(cell_reference, hs_gpa)
+            time.sleep(3)
+        except NoSuchElementException:
+            pass
 
 
 # Main Function
@@ -112,10 +132,10 @@ def format(sheetname):
     # transcodeVideos(driver,sheet)
     for college in college_names:
 
-        sport_stats(driver,sheet,row_count,college)
+        gpa_stats(driver,sheet,row_count,college)
 
         row_count+=1
 
 
 
-format("Princeton_DB")
+format("GPA_Sports_DB")
