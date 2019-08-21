@@ -31,7 +31,7 @@ import os
 
 # chromedriver folder
 
-chromedriver = '/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/chromedriver'
+chromedriver = '/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/chromedriver'
 driver = webdriver.Chrome(chromedriver)
 
 # credential folder
@@ -40,9 +40,15 @@ scope = ['https://spreadsheets.google.com/feeds',
 
 # credentials location         #
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper/credentials.json", scope)
+    "/Users/admin/Desktop/Github-Projects/Web-Video-Scaper/credentials.json", scope)
 client = gspread.authorize(creds)
 
+# function to remove all college name formatting
+def stripFormat(str):
+    # print("Strip Format\n")
+    str = str.replace("&", "")\
+
+    return str.lstrip()
 
 
 # Creates array of college names
@@ -87,7 +93,7 @@ def getSchoolID(sheet,college,row_count):
     # time.sleep(2)
     #
     #         # ipeds spreadsheet location
-    f = open(Path(r'/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper')/"school_ids.csv")
+    f = open(Path(r'/Users/admin/Desktop/Github-Projects/Web-Video-Scaper')/"school_ids.csv")
     school_id_data = csv.reader(f)
 
     for school_id in school_id_data:
@@ -109,7 +115,7 @@ def getIpeds(sheet, college,row_count):
 
 
     # ipeds spreadsheet location
-    f = open(Path(r'/Users/edwinaramburo/Desktop/Projects/Web-Video-Scaper')/"ipeds_ids.csv")
+    f = open(Path(r'/Users/admin/Desktop/Github-Projects/Web-Video-Scaper')/"ipeds_ids.csv")
     ipeds_data = csv.reader(f)
 
     for ipeds_id in ipeds_data:
@@ -171,7 +177,7 @@ def getThumb(driver, sheet,row_count):
     time.sleep(5)
 
     # # downloads folder
-    for filename in os.listdir("/Users/edwinaramburo/Downloads/"):
+    for filename in os.listdir("/Users/admin/Downloads/"):
 
         if filename ==".DS_Store": # Handles the first hidden file in the folder
             print("1111-DS_Store file encountered\n")
@@ -180,11 +186,11 @@ def getThumb(driver, sheet,row_count):
             print(filename)
 
             # uses the os.stat functions for file sizing
-            file = os.stat("/Users/edwinaramburo/Downloads/" + filename)
+            file = os.stat("/Users/admin/Downloads/" + filename)
 
 
             if(file.st_size) == 0:
-                os.unlink("/Users/edwinaramburo/Downloads/" + filename) #deletes files
+                os.unlink("/Users/admin/Downloads/" + filename) #deletes files
                 print('EMPTY THUMBNAIL ERROR') #notifies me of error
 
     #             ###### Updates the spreadsheet with the error ########
@@ -196,15 +202,15 @@ def getThumb(driver, sheet,row_count):
                 download.click()   # downloads url
                 time.sleep(5)
 
-                for filename in os.listdir("/Users/edwinaramburo/Downloads/"):
+                for filename in os.listdir("/Users/admin/Downloads/"):
 
                     if filename == ".DS_Store":
                         print("2222-DS_Store file encountered\n")
                         pass
 
                     else:
-                        src = '/Users/edwinaramburo/Downloads/' + (filename)
-                        dst = '/Users/edwinaramburo/Desktop/Thumbnails/' + (filename)
+                        src = '/Users/admin/Downloads/' + (filename)
+                        dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
                         # print("Renaming thumbnail")
                         os.rename(src, dst)
     # #
@@ -214,8 +220,8 @@ def getThumb(driver, sheet,row_count):
                     print("3333-DS_Store file encountered\n")
                     pass
                 else:
-                    src = '/Users/edwinaramburo/Downloads/' + (filename)
-                    dst = '/Users/edwinaramburo/Desktop/Thumbnails/' + (filename)
+                    src = '/Users/admin/Downloads/' + (filename)
+                    dst = '/Users/admin/Desktop/Thumbnails/' + (filename)
                     # print("Renaming thumbnail")
 
                     # This will rename the downloaded thumbnail
@@ -236,14 +242,16 @@ def downloadVideos(driver,sheet,row_count):
     url = sheet.acell('F'+str(row_count)).value
     college_name = sheet.acell('A'+str(row_count)).value
     category= sheet.acell('E'+str(row_count)).value
+    title = sheet.acell('D'+str(row_count)).value
 
 
     state = 'TEST'
 
+
     # os.mkdir('/Users/admin/Downloads/Videos')
     # print("test1")
     ydl_opts = {
-        'outtmpl' :'/Users/edwinaramburo/Downloads/Videos/%(title)s.%(ext)s'
+        'outtmpl' :'/Users/admin/Downloads/Videos/%(title)s.%(ext)s'
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
@@ -251,22 +259,25 @@ def downloadVideos(driver,sheet,row_count):
         ydl.download([url])
         time.sleep(13)
         print("\n")
-        for filename in os.listdir("/Users/edwinaramburo/Downloads/Videos/"):
+        for filename in os.listdir("/Users/admin/Downloads/Videos/"):
             print(filename+"\n")
+            new_video_name = str(row_count) +"_" +college_name+ "_" + category +"_"+ title + (filename)
             if filename ==".DS_Store":
                 print("SKIPPED")
             else:
                 # print("ELSE")
-                src = '/Users/edwinaramburo/Downloads/Videos/' + (filename)
+                src = '/Users/admin/Downloads/Videos/' + (filename)
                 print("SOURCE: "+ src)
                 ########REMEMBER TO CHANGE STATE NAME########
-                dst = '/Users/edwinaramburo/Desktop/Videos/'+ str(row_count) +"_" +college_name+ "_" + category +"_"+ (filename)
+                dst = '/Users/admin/Desktop/Videos/'+ new_video_name
                 # print(college_names[row_count]+"\n")
                 print('DESTINATION: '+ dst+"\n")
                 os.rename(src,dst)
                 # cell_reference = "K" + str(cell_count)
                 # sheet.update_acell(cell_reference, stripFormat(filename))
                 # cell_count+=1
+                cell_reference = "K" + str(row_count)
+                sheet.update_acell(cell_reference, new_video_name)
                 print("RENAMED\n")
                 # row_count+=1
                 time.sleep(3)
@@ -280,7 +291,7 @@ def transcodeVideos(driver, sheet):
     #     print(filename[count])
     #     count+=1
     wait = WebDriverWait(driver, 200)
-    downloaded_Videos = os.listdir("/Users/edwinaramburo/Desktop/Videos/")
+    downloaded_Videos = os.listdir("/Users/admin/Desktop/Videos/")
 
 #######TESTING PURPOSES######
     # for filename in downloaded_Videos:
@@ -303,6 +314,7 @@ def transcodeVideos(driver, sheet):
         print(filename)
         if filename ==".DS_Store":
             print("DS_STORE FILE SKIPPED")
+            pass
         else:
             print(filename)
             time.sleep(3)
@@ -319,7 +331,7 @@ def transcodeVideos(driver, sheet):
             # upload video file
             file_upload = driver.find_element_by_id('file_upload')
             # print("Here")
-            file_upload.send_keys("/Users/edwinaramburo/Desktop/Videos/" + filename)
+            file_upload.send_keys("/Users/admin/Desktop/Videos/" + filename)
 
             # print(video)
             # select campus compare as encoder profile
@@ -344,8 +356,81 @@ def transcodeVideos(driver, sheet):
             # Submit
             sub = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[@id='submit']")))
             sub.click()
-            os.rename("/edwinaramburo/Desktop/Videos/" + filename,"/Users/edwinaramburo/Desktop/Videos/Done/" + filename)
+            os.rename("/Users/admin/Desktop/Videos/" + filename,"/Users/admin/Desktop/Done/" + filename)
             # count += 1
+
+def transferURLS(driver, sheet,row_count):
+    print("Tranferring Videos urls....\n")
+    url = sheet.acell('F'+str(row_count)).value
+    college_name = sheet.acell('A'+str(row_count)).value
+    college_name = stripFormat(college_name)
+    category= sheet.acell('E'+str(row_count)).value
+    title = sheet.acell('D'+str(row_count)).value
+    new_video_name = str(row_count) +"_" +college_name+ "_" + category
+    # log in to transcoder
+    if row_count == 1:
+        driver.get("https://transcoder.studentbridge.com/admin/")
+        email = driver.find_element_by_id("email")
+        password = driver.find_element_by_id("password")
+        login = driver.find_element_by_tag_name("button")
+
+        email.send_keys("earamburo@studentbridge.com")
+        password.send_keys("admin123")
+        login.click()
+
+
+    time.sleep(3)
+    driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs")
+
+    # row_count = 1
+    # count = 0
+    # name_counter = 1
+    # state = 'MI'
+
+
+    # print(college_names)
+    search = driver.find_element_by_name('search')
+    search.click()
+    # title = stripFormat(title)
+    # # print(college_names[count]+" "+title)
+    # college_name = college_names[count]
+    # college_name = stripFormat(college_name)
+    # # print(college_name)
+    # print(college_name + " " +title)
+    # search.send_keys("RI" + str(name_counter) + " " + college_name + " " +title)
+    search.send_keys(new_video_name)
+    # search.send_keys(title)
+    # search.send_keys(college_names[count] +"_" + title)
+    search.send_keys(Keys.RETURN)
+    # print(title)
+    time.sleep(3)
+    url = driver.find_element_by_partial_link_text('http').text
+    # url.click()
+
+    # print(url)
+
+    cell_reference = "L" + str(row_count)
+    sheet.update_acell(cell_reference, url)
+    # row_count += 1
+    # count+=1
+    # name_counter+=1
+    # print(name_counter)
+
+    # print('Updated needs to clear')
+    search = driver.find_element_by_name('search')
+    search.click()
+    search.clear()
+
+        # print('Complete')
+    # except NoSuchElementException:
+    #     search = driver.find_element_by_name('search')
+    #     search.click()
+    #     search.clear()
+    #     row_count += 1
+    #     count+=1
+    #     name_counter+=1
+    #     pass
+
 
 # Main Function
 def format(sheetname):
@@ -374,54 +459,29 @@ def format(sheetname):
     for college in college_names:
         # print(college)
         #1 match school ids
-        getSchoolID(sheet,college,row_count)
+        # getSchoolID(sheet,college,row_count)
 
         #2 Uses spread sheet to acquire all iped ids
-        getIpeds(sheet, college,row_count)
+        # getIpeds(sheet, college,row_count)
 
         #3 -> This has a limitation on calls, used for errors that happen in the pytube api
-        getTitleFromYouTube(driver, sheet,row_count)
-
+        # getTitleFromYouTube(driver, sheet,row_count)
 
         #4 Downloads videos
-        downloadVideos(driver,sheet,row_count)
-
-
+        # downloadVideos(driver,sheet,row_count)
 
         # 5
         # transcodeVideos(driver,sheet)
 
-
-        #5 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
+        #6 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
         # getThumb(driver, sheet,row_count)
 
-
-        #6 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
-        # getThumb(video_URLS,video_titles, file_name, college_names, driver, sheet)
-
-        #7
-        # time.sleep(10)
-
-        #8 -> downloads all videos and saves them in "College Name___ Video Title"
-        # downloadVideos(video_URLS,college_names,sheet)
-
-
-        #9 -> downloads all videos and saves them in "College Name___ Video Title"
-        # downloadVideos(video_URLS,college_names,sheet)
-
-
-        #10 -> transcodes every video
-        # transcodeVideos(driver, video_titles)
-
-        #11-> transfer transcoded urls to spreadsheet
-        # transferURLS(video_titles,college_names,driver,sheet);
-
-        #12 -> deletes videos in downloaded video folders
-        #deleteVideos()
+        #7-> transfer transcoded urls to spreadsheet
+        transferURLS(driver,sheet,row_count);
 
         row_count+=1
 
-        #4 -> format categories
+        #8 -> format categories
         # formatCategories(sheet)
 
 
