@@ -70,10 +70,10 @@ def stripFormat(str):
     .replace("t","").replace("u","").replace("v","").replace("w","").replace("x","").replace("y","").replace("z","").rstrip('.')
     return str.strip()
 
-# Gets Title from Youtube
+
 def gpa_stats(driver, sheet, row_count, college):
 
-    print("Sport stats")
+    print("GPA stats")
     try:
         driver.get("https://www.princetonreview.com/college-search/?majors=14.3501&page=2")
         search = driver.find_element_by_class_name("tt-input")
@@ -96,14 +96,143 @@ def gpa_stats(driver, sheet, row_count, college):
             search = driver.find_element_by_xpath("//*[@id='tsf']/div[2]/div/div[1]/div/div[1]/input")
             search.send_keys(college + " high school average gpa")     # inputs video url
             search.send_keys(Keys.RETURN)
-            hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span")
-            hs_gpa = stripFormat(hs_gpa.text[0:45])
+            time.sleep(1)
+            # hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span")
+            # PREP SCHOLAR
+            # hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span")
+            # COLLEGE SIMPLY
+            # hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span")
+            # MAGOOSH
+            hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[2]/div/span[1]/span")
+            # THOUGHTCO
+            # hs_gpa = driver.find_element_by_xpath("//*[@id='rso']/div[1]/div/div[1]/div/div[1]/div[2]/div[1]/div/span/span")
+
+            ##################################
+            hs_gpa = stripFormat(hs_gpa.text)
             print(hs_gpa)
             cell_reference = "E" + str(row_count)
             sheet.update_acell(cell_reference, hs_gpa)
             time.sleep(3)
         except NoSuchElementException:
             pass
+
+def sport_stats(driver, sheet, row_count,tab_count, college):
+
+    print("Sport stats")
+    try:
+        if row_count == 1:
+            driver.get("https://secure.princetonreview.com/account/signin")
+
+            username = driver.find_element_by_xpath("//*[@id='Username']")
+            username.click()
+            username.send_keys("earamburo@studentbridge.com")
+
+            username = driver.find_element_by_xpath("//*[@id='Password']")
+            username.click()
+            username.send_keys("Colombia17$")
+
+            sign_in = driver.find_element_by_xpath("//*[@id='registrationContainer']/div[2]/input")
+            sign_in.click()
+            time.sleep(2)
+
+            driver.execute_script("window.open('');")
+
+            # search_bar = driver.find_element_by_xpath("//*[@id='siteSearchHref']")
+            # search_bar.click()
+
+        # search_results = driver.find_element_by_xpath("//*[@id='siteSearchText2']")
+        # search_results.click()
+        # search_results.send_keys("American University")
+
+        driver.switch_to.window(driver.window_handles[0])
+        driver.get("https://www.princetonreview.com/college-search/?majors=14.3501&page=2")
+        search = driver.find_element_by_class_name("tt-input")
+        search.send_keys(college)     # inputs video url
+        search.send_keys(Keys.RETURN)
+        time.sleep(2)
+
+        url = driver.current_url
+        url = url+"#!campuslife"
+
+
+        driver.switch_to.window(driver.window_handles[1])
+        driver.get(url)
+        time.sleep(2)
+
+        #
+        DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[1]/div[2]/div")
+        print(DIVISION_SPORTS_CLASS.text)
+        DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+
+        if not 'Division' in DIVISION_SPORTS_CLASS:
+            print('ERROR-Student Activity')
+            DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[1]/div[2]/div")
+            print(DIVISION_SPORTS_CLASS.text)
+            DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+            time.sleep(2)
+
+            # MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[1]/div[3]")
+            # print(MALE_SPORTS.text)
+            # MALE_SPORTS = MALE_SPORTS.text
+            # cell_reference = "G" + str(row_count)
+            # sheet.update_acell(cell_reference, MALE_SPORTS)
+            # time.sleep(2)
+            #
+            #
+            # FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[2]/div[3]")
+            # print(FEMALE_SPORTS.text)
+            # FEMALE_SPORTS = FEMALE_SPORTS.text
+            # cell_reference = "H" + str(row_count)
+            # sheet.update_acell(cell_reference, FEMALE_SPORTS)
+            # time.sleep(2)
+
+
+        cell_reference = "F" + str(row_count)
+        sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+        time.sleep(2)
+
+
+
+        # driver.execute_script("window.close('');")
+
+        #
+        # MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[2]/div[1]/div[3]")
+        # print(MALE_SPORTS.text)
+        # MALE_SPORTS = MALE_SPORTS.text
+        # cell_reference = "G" + str(row_count)
+        # sheet.update_acell(cell_reference, MALE_SPORTS)
+        # time.sleep(2)
+        #
+        #
+        # FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[2]/div[2]/div[3]")
+        # print(FEMALE_SPORTS.text)
+        # FEMALE_SPORTS = FEMALE_SPORTS.text
+        # cell_reference = "H" + str(row_count)
+        # sheet.update_acell(cell_reference, FEMALE_SPORTS)
+        # time.sleep(2)
+
+
+
+        driver.switch_to.window(driver.window_handles[0])
+
+
+
+
+        # driver.get(url)
+
+
+
+
+
+        # cell_reference = "E" + str(row_count)
+        # sheet.update_acell(cell_reference, hs_gpa)
+        # update spreadsheet with video title
+        # # if row_count is len(video_URLS):
+        # #     break
+        # time.sleep(5)
+    except NoSuchElementException:
+        print("Element not found")
+        pass
 
 
 # Main Function
@@ -129,12 +258,16 @@ def format(sheetname):
 
 #############FUNCTIONS###################
     row_count=1
+    tab_count =1
+    # college = "American University"
     # transcodeVideos(driver,sheet)
     for college in college_names:
 
-        gpa_stats(driver,sheet,row_count,college)
+        # gpa_stats(driver,sheet,row_count,college)
+        sport_stats(driver, sheet, row_count,tab_count, college)
 
         row_count+=1
+        tab_count+=1
 
 
 
