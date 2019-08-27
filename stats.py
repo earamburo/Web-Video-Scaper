@@ -116,26 +116,27 @@ def gpa_stats(driver, sheet, row_count, college):
         except NoSuchElementException:
             pass
 
-def sport_stats(driver, sheet, row_count,tab_count, college):
+def sport_stats(driver, sheet, row_count, college):
 
-    print("Sport stats")
-    try:
-        if row_count == 1:
-            driver.get("https://secure.princetonreview.com/account/signin")
+    print("\nGetting Sport stats...\n")
+    if row_count == 1:
+        driver.get("https://secure.princetonreview.com/account/signin")
 
-            username = driver.find_element_by_xpath("//*[@id='Username']")
-            username.click()
-            username.send_keys("earamburo@studentbridge.com")
+        username = driver.find_element_by_xpath("//*[@id='Username']")
+        username.click()
+        username.send_keys("earamburo@studentbridge.com")
 
-            username = driver.find_element_by_xpath("//*[@id='Password']")
-            username.click()
-            username.send_keys("Colombia17$")
+        username = driver.find_element_by_xpath("//*[@id='Password']")
+        username.click()
+        username.send_keys("Colombia17$")
 
-            sign_in = driver.find_element_by_xpath("//*[@id='registrationContainer']/div[2]/input")
-            sign_in.click()
-            time.sleep(2)
+        sign_in = driver.find_element_by_xpath("//*[@id='registrationContainer']/div[2]/input")
+        sign_in.click()
+        time.sleep(2)
 
-            driver.execute_script("window.open('');")
+        driver.execute_script("window.open('');")
+
+
 
             # search_bar = driver.find_element_by_xpath("//*[@id='siteSearchHref']")
             # search_bar.click()
@@ -144,95 +145,272 @@ def sport_stats(driver, sheet, row_count,tab_count, college):
         # search_results.click()
         # search_results.send_keys("American University")
 
-        driver.switch_to.window(driver.window_handles[0])
-        driver.get("https://www.princetonreview.com/college-search/?majors=14.3501&page=2")
-        search = driver.find_element_by_class_name("tt-input")
-        search.send_keys(college)     # inputs video url
-        search.send_keys(Keys.RETURN)
+
+    driver.switch_to.window(driver.window_handles[0])
+    driver.get("https://www.princetonreview.com/college-search/?majors=14.3501&page=2")
+    search = driver.find_element_by_class_name("tt-input")
+    search.send_keys(college)     # inputs video url
+    search.send_keys(Keys.RETURN)
+    time.sleep(2)
+
+    url = driver.current_url
+
+    if '?search' in url:
+        VIEW_SCHOOL = driver.find_element_by_xpath("//*[@id='filtersForm']/div[2]/div[3]/div[2]/div[1]/div[2]/a")
+        VIEW_SCHOOL.click()
+        new_url = driver.current_url+"#!campuslife"
+        driver.switch_to.window(driver.window_handles[1])
+        driver.get(new_url)
         time.sleep(2)
 
-        url = driver.current_url
+    else:
         url = url+"#!campuslife"
-
-
         driver.switch_to.window(driver.window_handles[1])
         driver.get(url)
         time.sleep(2)
 
-        #
-        DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[1]/div[2]/div")
+        print(college+"\n")
+
+
+    try:
+        print("TEST 1 INITIALIZED")
+        DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[1]/div[2]/div")
         print(DIVISION_SPORTS_CLASS.text)
         DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
-
-        if not 'Division' in DIVISION_SPORTS_CLASS:
-            print('ERROR-Student Activity')
-            DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[1]/div[2]/div")
-            print(DIVISION_SPORTS_CLASS.text)
-            DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
-            time.sleep(2)
-
-            # MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[1]/div[3]")
-            # print(MALE_SPORTS.text)
-            # MALE_SPORTS = MALE_SPORTS.text
-            # cell_reference = "G" + str(row_count)
-            # sheet.update_acell(cell_reference, MALE_SPORTS)
-            # time.sleep(2)
-            #
-            #
-            # FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[2]/div[3]")
-            # print(FEMALE_SPORTS.text)
-            # FEMALE_SPORTS = FEMALE_SPORTS.text
-            # cell_reference = "H" + str(row_count)
-            # sheet.update_acell(cell_reference, FEMALE_SPORTS)
-            # time.sleep(2)
-
-
         cell_reference = "F" + str(row_count)
         sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+        print("TEST 1: DIVISION FOUND")
+
+        MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[1]/div[3]")
+        print(MALE_SPORTS.text)
+        MALE_SPORTS = MALE_SPORTS.text
+        cell_reference = "G" + str(row_count)
+        sheet.update_acell(cell_reference, MALE_SPORTS)
+        print("TEST 1: MALE SPORTS FOUND")
+        time.sleep(2)
+
+        FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[2]/div[3]")
+        print(FEMALE_SPORTS.text)
+        FEMALE_SPORTS = FEMALE_SPORTS.text
+        cell_reference = "H" + str(row_count)
+        sheet.update_acell(cell_reference, FEMALE_SPORTS)
+        print("TEST 1: FEMALE SPORTS FOUND")
         time.sleep(2)
 
 
 
-        # driver.execute_script("window.close('');")
-
-        #
-        # MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[2]/div[1]/div[3]")
-        # print(MALE_SPORTS.text)
-        # MALE_SPORTS = MALE_SPORTS.text
-        # cell_reference = "G" + str(row_count)
-        # sheet.update_acell(cell_reference, MALE_SPORTS)
-        # time.sleep(2)
-        #
-        #
-        # FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[2]/div[2]/div[3]")
-        # print(FEMALE_SPORTS.text)
-        # FEMALE_SPORTS = FEMALE_SPORTS.text
-        # cell_reference = "H" + str(row_count)
-        # sheet.update_acell(cell_reference, FEMALE_SPORTS)
-        # time.sleep(2)
-
-
-
-        driver.switch_to.window(driver.window_handles[0])
-
-
-
-
-        # driver.get(url)
-
-
-
-
-
-        # cell_reference = "E" + str(row_count)
-        # sheet.update_acell(cell_reference, hs_gpa)
-        # update spreadsheet with video title
-        # # if row_count is len(video_URLS):
-        # #     break
-        # time.sleep(5)
     except NoSuchElementException:
-        print("Element not found")
-        pass
+            print("\n")
+            print("TEST 2 INITIALIZED\n")
+            try:
+                time.sleep(3)
+                DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[1]/div[2]/div")
+                print(DIVISION_SPORTS_CLASS.text)
+                DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+                cell_reference = "F" + str(row_count)
+                sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+                print("TEST 2: DIVISION FOUND")
+
+
+                MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[4]/div[1]/div[3]")
+                print(MALE_SPORTS.text)
+                MALE_SPORTS = MALE_SPORTS.text
+                cell_reference = "G" + str(row_count)
+                sheet.update_acell(cell_reference, MALE_SPORTS)
+                print("TEST 2: MALE SPORTS FOUND")
+                time.sleep(2)
+
+                FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[4]/div[2]/div[3]")
+                print(FEMALE_SPORTS.text)
+                FEMALE_SPORTS = FEMALE_SPORTS.text
+                cell_reference = "H" + str(row_count)
+                sheet.update_acell(cell_reference, FEMALE_SPORTS)
+                print("TEST 2: FEMALE SPORTS FOUND")
+                time.sleep(2)
+            except NoSuchElementException:
+                print("\n")
+                print("TEST 3 INITIALIZED\n")
+                try:
+                    time.sleep(3)
+                    DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[1]/div[2]/div")
+                    print(DIVISION_SPORTS_CLASS.text)
+                    DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+                    cell_reference = "F" + str(row_count)
+                    sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+                    print("TEST 3: DIVISION FOUND")
+
+
+                    MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[3]/div[1]/div[3]")
+                    print(MALE_SPORTS.text)
+                    MALE_SPORTS = MALE_SPORTS.text
+                    cell_reference = "G" + str(row_count)
+                    sheet.update_acell(cell_reference, MALE_SPORTS)
+                    print("TEST 3: MALE SPORTS FOUND")
+                    time.sleep(2)
+
+                    FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[3]/div[2]/div[3]")
+                    print(FEMALE_SPORTS.text)
+                    FEMALE_SPORTS = FEMALE_SPORTS.text
+                    cell_reference = "H" + str(row_count)
+                    sheet.update_acell(cell_reference, FEMALE_SPORTS)
+                    print("TEST 3: FEMALE SPORTS FOUND")
+                    time.sleep(2)
+
+                except NoSuchElementException:
+                    print("\nTEST 4 INITIALIZED\n")
+
+                    try:
+                        time.sleep(3)
+                        DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("    //*[@id='campuslife']/div[7]/div[2]/div[1]/div[2]/div")
+                        print(DIVISION_SPORTS_CLASS.text)
+                        DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+                        cell_reference = "F" + str(row_count)
+                        sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+                        print("TEST 4: DIVISION FOUND")
+
+
+                        MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[3]/div[1]/div[3]")
+                        print(MALE_SPORTS.text)
+                        MALE_SPORTS = MALE_SPORTS.text
+                        cell_reference = "G" + str(row_count)
+                        sheet.update_acell(cell_reference, MALE_SPORTS)
+                        print("TEST 4: MALE SPORTS FOUND")
+                        time.sleep(2)
+
+                        FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[3]/div[2]/div[3]")
+                        print(FEMALE_SPORTS.text)
+                        FEMALE_SPORTS = FEMALE_SPORTS.text
+                        cell_reference = "H" + str(row_count)
+                        sheet.update_acell(cell_reference, FEMALE_SPORTS)
+                        print("TEST 4: FEMALE SPORTS FOUND")
+                        time.sleep(2)
+
+                    except NoSuchElementException:
+                        print("\nTEST 5 INITIALIZED\n")
+
+                        try:
+                            time.sleep(3)
+                            DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[1]/div[2]/div")
+                            print(DIVISION_SPORTS_CLASS.text)
+                            DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+                            cell_reference = "F" + str(row_count)
+                            sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+                            print("TEST 5: DIVISION FOUND")
+
+
+                            MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[2]/div[1]/div[3]")
+                            print(MALE_SPORTS.text)
+                            MALE_SPORTS = MALE_SPORTS.text
+                            cell_reference = "G" + str(row_count)
+                            sheet.update_acell(cell_reference, MALE_SPORTS)
+                            print("TEST 5: MALE SPORTS FOUND")
+                            time.sleep(2)
+
+                            FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[2]/div[2]/div[3]")
+                            print(FEMALE_SPORTS.text)
+                            FEMALE_SPORTS = FEMALE_SPORTS.text
+                            cell_reference = "H" + str(row_count)
+                            sheet.update_acell(cell_reference, FEMALE_SPORTS)
+                            print("TEST 5: FEMALE SPORTS FOUND")
+                            time.sleep(2)
+                        except NoSuchElementException:
+                            if 'Other' in DIVISION_SPORTS_CLASS:
+                                print("DNE")
+                                pass
+
+            # except NoSuchElementException:
+            #     print("TEST 3 INITIALIZED\n")
+            #     try:
+            #         if not 'Division' in DIVISION_SPORTS_CLASS:
+            #             print("DIVISION NOT FOUND\n")
+            #             time.sleep(3)
+            #             DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[1]/div[2]/div")
+            #             print(DIVISION_SPORTS_CLASS.text)
+            #             DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+            #
+            #         MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[4]/div[1]/div[3]")
+            #         print(MALE_SPORTS.text)
+            #         MALE_SPORTS = MALE_SPORTS.text
+            #         cell_reference = "G" + str(row_count)
+            #         sheet.update_acell(cell_reference, MALE_SPORTS)
+            #         time.sleep(2)
+            #
+            #         FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[4]/div[2]/div[3]")
+            #         print(FEMALE_SPORTS.text)
+            #         FEMALE_SPORTS = FEMALE_SPORTS.text
+            #         cell_reference = "H" + str(row_count)
+            #         sheet.update_acell(cell_reference, FEMALE_SPORTS)
+            #         time.sleep(2)
+
+
+
+        # if not 'Division' in DIVISION_SPORTS_CLASS:
+        #     print('ERROR-Student Activity')
+        #     DIVISION_SPORTS_CLASS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[1]/div[2]/div")
+        #     print(DIVISION_SPORTS_CLASS.text)
+        #     DIVISION_SPORTS_CLASS = DIVISION_SPORTS_CLASS.text
+        #     time.sleep(2)
+        #
+        #     MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[1]/div[3]")
+        #     print(MALE_SPORTS.text)
+        #     MALE_SPORTS = MALE_SPORTS.text
+        #     cell_reference = "G" + str(row_count)
+        #     sheet.update_acell(cell_reference, MALE_SPORTS)
+        #     time.sleep(2)
+        #
+        #
+        #     FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[8]/div[2]/div[4]/div[2]/div[3]")
+        #     print(FEMALE_SPORTS.text)
+        #     FEMALE_SPORTS = FEMALE_SPORTS.text
+        #     cell_reference = "H" + str(row_count)
+        #     sheet.update_acell(cell_reference, FEMALE_SPORTS)
+        #     time.sleep(2)
+
+
+
+    # cell_reference = "F" + str(row_count)
+    # sheet.update_acell(cell_reference, DIVISION_SPORTS_CLASS)
+    # time.sleep(2)
+
+
+
+    # driver.execute_script("window.close('');")
+
+    #
+    # MALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[2]/div[1]/div[3]")
+    # print(MALE_SPORTS.text)
+    # MALE_SPORTS = MALE_SPORTS.text
+    # cell_reference = "G" + str(row_count)
+    # sheet.update_acell(cell_reference, MALE_SPORTS)
+    # time.sleep(2)
+    #
+    #
+    # FEMALE_SPORTS = driver.find_element_by_xpath("//*[@id='campuslife']/div[7]/div[2]/div[2]/div[2]/div[3]")
+    # print(FEMALE_SPORTS.text)
+    # FEMALE_SPORTS = FEMALE_SPORTS.text
+    # cell_reference = "H" + str(row_count)
+    # sheet.update_acell(cell_reference, FEMALE_SPORTS)
+    # time.sleep(2)
+
+
+
+    driver.switch_to.window(driver.window_handles[0])
+
+
+
+
+    # driver.get(url)
+
+
+
+
+
+    # cell_reference = "E" + str(row_count)
+    # sheet.update_acell(cell_reference, hs_gpa)
+    # update spreadsheet with video title
+    # # if row_count is len(video_URLS):
+    # #     break
+    # time.sleep(5)
 
 
 # Main Function
@@ -258,16 +436,15 @@ def format(sheetname):
 
 #############FUNCTIONS###################
     row_count=1
-    tab_count =1
+
     # college = "American University"
     # transcodeVideos(driver,sheet)
     for college in college_names:
 
         # gpa_stats(driver,sheet,row_count,college)
-        sport_stats(driver, sheet, row_count,tab_count, college)
+        sport_stats(driver, sheet, row_count, college)
 
         row_count+=1
-        tab_count+=1
 
 
 
