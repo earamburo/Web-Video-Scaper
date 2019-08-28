@@ -44,11 +44,11 @@ creds = ServiceAccountCredentials.from_json_keyfile_name(
 client = gspread.authorize(creds)
 
 # function to remove all college name formatting
-def stripFormat(str):
+def stripName(str):
     # print("Strip Format\n")
-    str = str.replace("&", "")\
+    str = str.replace("&", "").replace("-","_").replace(" ","_").replace("'","")\
 
-    return str.lstrip()
+    return str.strip()
 
 
 # Creates array of college names
@@ -79,6 +79,7 @@ def stripFormat(str):
     .replace("Promo","").replace("promo","")\
     .replace("Intro","").replace("intro ","")\
     .replace("trailer","").replace("Trailer","")\
+
 
 
     return str.lstrip()
@@ -261,7 +262,7 @@ def downloadVideos(driver,sheet,row_count):
         print("\n")
         for filename in os.listdir("/Users/admin/Downloads/Videos/"):
             print(filename+"\n")
-            new_video_name = str(row_count) +"_" +college_name+ "_" + category +"_"+ title + (filename)
+            new_video_name = stripName(college_name)+ "_" + category +"_"+ stripName(title) +".mp4"
             if filename ==".DS_Store":
                 print("SKIPPED")
             else:
@@ -366,7 +367,7 @@ def transferURLS(driver, sheet,row_count):
     college_name = stripFormat(college_name)
     category= sheet.acell('E'+str(row_count)).value
     title = sheet.acell('D'+str(row_count)).value
-    new_video_name = str(row_count) +"_" +college_name+ "_" + category
+    new_video_name = stripName(college_name)+ "_" + category +"_"+ stripName(title) +".mp4"
     # log in to transcoder
     if row_count == 1:
         driver.get("https://transcoder.studentbridge.com/admin/")
@@ -379,48 +380,51 @@ def transferURLS(driver, sheet,row_count):
         login.click()
 
 
-    time.sleep(3)
-    driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs")
+    try:
+        time.sleep(3)
+        driver.get("https://transcoder.studentbridge.com/admin/admin_jobs_outputs")
 
-    # row_count = 1
-    # count = 0
-    # name_counter = 1
-    # state = 'MI'
+        # row_count = 1
+        # count = 0
+        # name_counter = 1
+        # state = 'MI'
 
 
-    # print(college_names)
-    search = driver.find_element_by_name('search')
-    search.click()
-    # title = stripFormat(title)
-    # # print(college_names[count]+" "+title)
-    # college_name = college_names[count]
-    # college_name = stripFormat(college_name)
-    # # print(college_name)
-    # print(college_name + " " +title)
-    # search.send_keys("RI" + str(name_counter) + " " + college_name + " " +title)
-    search.send_keys(new_video_name)
-    # search.send_keys(title)
-    # search.send_keys(college_names[count] +"_" + title)
-    search.send_keys(Keys.RETURN)
-    # print(title)
-    time.sleep(3)
-    url = driver.find_element_by_partial_link_text('http').text
-    # url.click()
+        # print(college_names)
+        search = driver.find_element_by_name('search')
+        search.click()
+        # title = stripFormat(title)
+        # # print(college_names[count]+" "+title)
+        # college_name = college_names[count]
+        # college_name = stripFormat(college_name)
+        # # print(college_name)
+        # print(college_name + " " +title)
+        # search.send_keys("RI" + str(name_counter) + " " + college_name + " " +title)
+        search.send_keys(new_video_name)
+        # search.send_keys(title)
+        # search.send_keys(college_names[count] +"_" + title)
+        search.send_keys(Keys.RETURN)
+        # print(title)
+        time.sleep(3)
+        url = driver.find_element_by_partial_link_text('http').text
+        # url.click()
 
-    # print(url)
+        # print(url)
 
-    cell_reference = "L" + str(row_count)
-    sheet.update_acell(cell_reference, url)
-    # row_count += 1
-    # count+=1
-    # name_counter+=1
-    # print(name_counter)
+        cell_reference = "L" + str(row_count)
+        sheet.update_acell(cell_reference, url)
+        # row_count += 1
+        # count+=1
+        # name_counter+=1
+        # print(name_counter)
 
-    # print('Updated needs to clear')
-    search = driver.find_element_by_name('search')
-    search.click()
-    search.clear()
-
+        # print('Updated needs to clear')
+        search = driver.find_element_by_name('search')
+        search.click()
+        search.clear()
+    except NoSuchElementException:
+        print("NOT FOUND")
+        pass
         # print('Complete')
     # except NoSuchElementException:
     #     search = driver.find_element_by_name('search')
@@ -430,6 +434,27 @@ def transferURLS(driver, sheet,row_count):
     #     count+=1
     #     name_counter+=1
     #     pass
+
+def formatCategories(sheet,row_count,video_categories):
+    print("Formatting categories\n")
+    categories = sheet.col_values(5)
+    for category in video_categories:
+        category = str.strip(category)
+        if category in ['Admissions', 'Academics', 'About', 'Athletics', 'Student Life', 'Discover', 'Campus', 'Alumni']:
+            # print("Checking categories")
+            cell_reference = "E" + str(row_count)
+            # print(cell_reference)
+            sheet.update_acell(cell_reference,category)
+            time.sleep(3)
+
+            # print("MATCH")
+        # print("End")
+        else:
+            sheet.update_acell("E"+str(row_count),'XXXXXXXSPELLCHECKXXXXXX')
+            row_count+=1
+            print("No Match")
+
+    print("FINISHED AUDITING CATEGORIES")
 
 
 # Main Function
@@ -467,22 +492,25 @@ def format(sheetname):
         #3 -> This has a limitation on calls, used for errors that happen in the pytube api
         # getTitleFromYouTube(driver, sheet,row_count)
 
-        #4 Downloads videos
+        #4 Downloads videos -
+        ### REMEMBER TO DELETE VIDEO FOLDER IN DOWNLOADS AFTER ###
         # downloadVideos(driver,sheet,row_count)
-
+################################NEXT PHASE###########################################################
         # 5
         # transcodeVideos(driver,sheet)
-
+################################NEXT PHASE###########################################################
         #6 -> downloads, renames and transfer thumbnails from youtube to spreadsheet
         # getThumb(driver, sheet,row_count)
 
         #7-> transfer transcoded urls to spreadsheet
-        transferURLS(driver,sheet,row_count);
+        # transferURLS(driver,sheet,row_count);
+
+        #8 -> format categories
+        formatCategories(sheet,row_count,video_categories)
 
         row_count+=1
 
-        #8 -> format categories
-        # formatCategories(sheet)
+
 
 
 format("Specific imports")
