@@ -481,13 +481,13 @@ def format(sheetname):
 #############FUNCTIONS###################
     row_count=1
     # transcodeVideos(driver,sheet)
-    for college in college_names:
+    # for college in college_names:
         # print(college)
         #1 match school ids
-        getSchoolID(sheet,college,row_count)
+        # getSchoolID(sheet,college,row_count)
 
         #2 Uses spread sheet to acquire all iped ids
-        getIpeds(sheet, college,row_count)
+        # getIpeds(sheet, college,row_count)
 
         #3 -> This has a limitation on calls, used for errors that happen in the pytube api
         # getTitleFromYouTube(driver, sheet,row_count)
@@ -505,13 +505,13 @@ def format(sheetname):
         #7-> transfer transcoded urls to spreadsheet
         # transferURLS(driver,sheet,row_count);
 
-        row_count+=1
-
-    # for category in video_categories:
-        #8 -> format categories
-        # formatCategories(sheet,row_count,category)
-
         # row_count+=1
+
+    for category in video_categories:
+        # 8 -> format categories
+        formatCategories(sheet,row_count,category)
+
+        row_count+=1
 
 
 
